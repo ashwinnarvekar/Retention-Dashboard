@@ -375,21 +375,24 @@ export default function App() {
           <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Unsolved Aging Table</div>
           <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 20 }}>Oldest unresolved concerns at the top — nothing should fall through the cracks</div>
           {unsolvedAging.length === 0 && <div style={{ color: '#34D399', fontSize: 14, fontWeight: 600 }}>✓ All concerns resolved!</div>}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr 0.8fr', gap: 0 }}>
-            {['Phone', 'Category', 'Status', 'Age'].map(h => (
-              <div key={h} style={{ fontSize: 10, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px', borderBottom: '1px solid #1A2236' }}>{h}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.4fr 1.2fr 1fr 0.8fr', gap: 0 }}>
+            {['Phone', 'Category', 'Date Raised', 'Status', 'Age'].map(h => (
+              <div key={h} style={{ fontSize: 11, fontWeight: 800, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '10px 12px', borderBottom: '2px solid #1A2236' }}>{h}</div>
             ))}
             {unsolvedAging.map((r, i) => {
               const ageColor = r.hoursAgo > 48 ? '#F87171' : r.hoursAgo > 24 ? '#F59E0B' : '#34D399';
               const ageLabel = r.daysAgo >= 1 ? r.daysAgo + 'd ' + (r.hoursAgo % 24) + 'h' : r.hoursAgo + 'h';
               const statusColor = r['Update'] === 'In-progress' ? '#F59E0B' : '#F87171';
+              const dateLabel = r['Created At IST'] ? String(r['Created At IST']).slice(0, 16) : '-';
+              const phone = String(r['Phone'] || '').replace(/.0$/, '');
               return [
-                <div key={'p'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#94A3B8' }}>••••{String(r['Phone'] || '').slice(-4)}</div>,
-                <div key={'c'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420', fontSize: 12, color: '#CBD5E1' }}>{r['Category']}</div>,
-                <div key={'s'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420' }}>
-                  <span style={{ background: statusColor + '22', color: statusColor, padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600 }}>{r['Update']}</span>
+                <div key={'p'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontFamily: 'DM Mono, monospace', fontSize: 13, fontWeight: 600, color: '#F1F5F9' }}>{phone}</div>,
+                <div key={'c'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontSize: 13, fontWeight: 600, color: '#CBD5E1' }}>{r['Category']}</div>,
+                <div key={'d'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#94A3B8' }}>{dateLabel}</div>,
+                <div key={'s'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827' }}>
+                  <span style={{ background: statusColor + '22', color: statusColor, padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700 }}>{r['Update']}</span>
                 </div>,
-                <div key={'a'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 13, fontWeight: 700, color: ageColor }}>{ageLabel}</div>,
+                <div key={'a'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 800, color: ageColor }}>{ageLabel}</div>,
               ];
             })}
           </div>
@@ -403,7 +406,7 @@ export default function App() {
             <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 20 }}>This week vs last week</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 0 }}>
               {['Metric', 'This Week', 'Last Week', 'Change'].map(h => (
-                <div key={h} style={{ fontSize: 10, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px', borderBottom: '2px solid #1A2236' }}>{h}</div>
+                <div key={h} style={{ fontSize: 11, fontWeight: 800, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '10px 12px', borderBottom: '2px solid #1A2236' }}>{h}</div>
               ))}
               {weekStats.map(s => {
                 const diff = s.tw - s.lw;
