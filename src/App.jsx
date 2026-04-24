@@ -248,7 +248,7 @@ export default function App() {
         {tabs.map(t => <button key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</button>)}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
+      {tab !== "revenue" && <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
         {[
           { label: "Total Conversations", val: total, accent: "#4F8EF7" },
           { label: "Solved", val: solved, accent: "#34D399" },
@@ -486,9 +486,9 @@ export default function App() {
               <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Monthly Progress — April 2026</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
                 {[
-                  { label: 'Monthly Target', val: '₹' + (MONTHLY_TARGET/1000).toFixed(0) + 'K', color: '#4F8EF7' },
-                  { label: 'Achieved So Far', val: '₹' + Math.round(totalAchieved/1000) + 'K', color: '#34D399' },
-                  { label: 'Gap', val: '₹' + Math.round((MONTHLY_TARGET - totalAchieved)/1000) + 'K', color: '#F87171' },
+                  { label: 'Monthly Target', val: '₹' + MONTHLY_TARGET.toLocaleString('en-IN'), color: '#4F8EF7' },
+                  { label: 'Achieved So Far', val: '₹' + Math.round(totalAchieved).toLocaleString('en-IN'), color: '#34D399' },
+                  { label: 'Gap', val: '₹' + Math.round(MONTHLY_TARGET - totalAchieved).toLocaleString('en-IN'), color: '#F87171' },
                   { label: '% Achieved', val: monthlyPct + '%', color: monthlyPct >= 80 ? '#34D399' : monthlyPct >= 60 ? '#F59E0B' : '#F87171' },
                 ].map(k => (
                   <div key={k.label} style={{ background: '#111827', border: '1px solid #1A2236', borderRadius: 10, padding: '14px 18px' }}>
@@ -512,8 +512,8 @@ export default function App() {
               <ResponsiveContainer width='100%' height={220}>
                 <BarChart data={revenueWithTotal} barSize={14}>
                   <XAxis dataKey='date' tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + (v/1000).toFixed(0) + 'K'} />
-                  <Tooltip formatter={(v, n) => ['₹' + v.toFixed(0), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + v.toLocaleString('en-IN')} />
+                  <Tooltip formatter={(v, n) => ['₹' + Math.round(v).toLocaleString('en-IN'), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
                   <Bar dataKey='total' name='Achieved' fill='#4F8EF7' radius={[3,3,0,0]} />
                   {revenueWithTotal.map((d, i) => null)}
                   <Bar dataKey={() => DAILY_TEAM_TARGET} name='Target' fill='transparent' stroke='#F87171' strokeWidth={2} strokeDasharray='4 2' radius={[3,3,0,0]} />
@@ -527,8 +527,8 @@ export default function App() {
               <ResponsiveContainer width='100%' height={220}>
                 <BarChart data={REVENUE_DATA} barSize={14}>
                   <XAxis dataKey='date' tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + (v/1000).toFixed(0) + 'K'} />
-                  <Tooltip formatter={(v, n) => ['₹' + v.toFixed(0), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + v.toLocaleString('en-IN')} />
+                  <Tooltip formatter={(v, n) => ['₹' + Math.round(v).toLocaleString('en-IN'), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
                   <Legend iconType='circle' iconSize={7} formatter={v => <span style={{ fontSize: 10, color: '#94A3B8' }}>{v}</span>} />
                   {COACHES.map(coach => <Bar key={coach} dataKey={coach} stackId='a' fill={COACH_COLORS[coach]} />)}
                 </BarChart>
