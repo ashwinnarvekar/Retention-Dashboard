@@ -92,15 +92,17 @@ export default function App() {
   const total = data.length;
   const solved = data.filter(r => r["Update"] === "Solved").length;
   const inProgress = data.filter(r => r["Update"] === "In-progress").length;
+  const concernRaised = data.filter(r => r["Update"] === "Concern raised" || r["Update"] === "Concern Raised").length;
   const solveRate = total ? Math.round((solved / total) * 100) : 0;
 
   const dailyMap = {};
   data.forEach(r => {
     if (!r.dateStr) return;
-    if (!dailyMap[r.dateStr]) dailyMap[r.dateStr] = { date: r.dateStr, Total: 0, Solved: 0, "In-progress": 0 };
+    if (!dailyMap[r.dateStr]) dailyMap[r.dateStr] = { date: r.dateStr, Total: 0, Solved: 0, "In-progress": 0, "Concern Raised": 0 };
     dailyMap[r.dateStr].Total++;
     if (r["Update"] === "Solved") dailyMap[r.dateStr].Solved++;
     else if (r["Update"] === "In-progress") dailyMap[r.dateStr]["In-progress"]++;
+    else if (r["Update"] === "Concern raised" || r["Update"] === "Concern Raised") dailyMap[r.dateStr]["Concern Raised"]++;
   });
   const dailyData = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date)).map(d => ({ ...d, label: fmtDay(d.date) }));
 
@@ -184,7 +186,7 @@ export default function App() {
           { label: "Total Conversations", val: total, accent: "#4F8EF7" },
           { label: "Solved", val: solved, accent: "#34D399" },
           { label: "In-Progress", val: inProgress, accent: "#F59E0B" },
-          { label: "Solve Rate", val: `${solveRate}%`, accent: solveRate >= 90 ? "#34D399" : "#F59E0B" },
+          { label: "Concern Raised", val: concernRaised, accent: "#F87171" },
         ].map(k => (
           <div key={k.label} className="kpi" style={{ "--accent": k.accent }}>
             <div style={{ fontSize: 34, fontWeight: 700, color: k.accent, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
@@ -233,6 +235,7 @@ export default function App() {
                 <Tooltip contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
                 <Bar dataKey="Solved" fill="#34D399" radius={[3, 3, 0, 0]} />
                 <Bar dataKey="In-progress" fill="#F59E0B" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Concern Raised" fill="#F87171" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
