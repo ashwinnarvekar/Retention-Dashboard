@@ -159,7 +159,7 @@ export default function App() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em", color: "#F1F5F9" }}>Retention Dashboard</div>
-          <div style={{ fontSize: 11, color: "#1E3A5F", marginTop: 4, fontFamily: "'DM Mono', monospace", letterSpacing: "0.05em" }}>
+          <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 4, fontFamily: "'DM Mono', monospace", letterSpacing: "0.05em" }}>
             ● LIVE · {raw.length} records{lastUpdated ? ` · synced ${lastUpdated}` : ""}
           </div>
         </div>
@@ -187,11 +187,11 @@ export default function App() {
           { label: "Solved", val: solved, accent: "#34D399" },
           { label: "In-Progress", val: inProgress, accent: "#F59E0B" },
           { label: "Concern Raised", val: concernRaised, accent: "#F87171" },
-          { label: "Solve Rate", val: `${solveRate}%`, accent: solveRate >= 90 ? "#34D399" : "#F59E0B" },
+          { label: "Solve Rate", val: `${solveRate}%`, accent: "#A78BFA" },
         ].map(k => (
           <div key={k.label} className="kpi" style={{ "--accent": k.accent }}>
             <div style={{ fontSize: 34, fontWeight: 700, color: k.accent, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
-            <div style={{ fontSize: 10, color: "#334155", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.1em" }}>{k.label}</div>
+            <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.1em" }}>{k.label}</div>
           </div>
         ))}
       </div>
@@ -199,7 +199,7 @@ export default function App() {
       {tab === "overview" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Volume</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Volume</div>
             <ResponsiveContainer width="100%" height={185}>
               <AreaChart data={dailyData}>
                 <defs>
@@ -208,31 +208,31 @@ export default function App() {
                     <stop offset="100%" stopColor="#4F8EF7" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
                 <Area type="monotone" dataKey="Total" stroke="#4F8EF7" fill="url(#gT)" strokeWidth={2} dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Split</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Split</div>
             <ResponsiveContainer width="100%" height={185}>
               <PieChart>
                 <Pie data={catData} cx="50%" cy="50%" innerRadius={48} outerRadius={74} dataKey="value" paddingAngle={3}>
                   {catData.map(e => <Cell key={e.name} fill={COLORS[e.name] || "#64748b"} />)}
                 </Pie>
                 <Tooltip contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
-                <Legend iconType="circle" iconSize={6} formatter={v => <span style={{ fontSize: 10, color: "#475569" }}>{v}</span>} />
+                <Legend iconType="circle" iconSize={6} formatter={v => <span style={{ fontSize: 10, color: "#94A3B8" }}>{v}</span>} />
               </PieChart>
             </ResponsiveContainer>
           </div>
           <div className="card" style={{ gridColumn: "1 / -1" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress by Day</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress by Day</div>
             <ResponsiveContainer width="100%" height={140}>
               <BarChart data={dailyData} barSize={10}>
-                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
                 <Bar dataKey="Solved" fill="#34D399" radius={[3, 3, 0, 0]} />
                 <Bar dataKey="In-progress" fill="#F59E0B" radius={[3, 3, 0, 0]} />
@@ -246,19 +246,19 @@ export default function App() {
       {tab === "trends" && (
         <div style={{ display: "grid", gap: 14 }}>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Volume by Day</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Volume by Day</div>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={catDayData} barSize={10}>
-                <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
-                <Legend iconType="circle" iconSize={6} formatter={v => <span style={{ fontSize: 10, color: "#475569" }}>{v}</span>} />
+                <Legend iconType="circle" iconSize={6} formatter={v => <span style={{ fontSize: 10, color: "#94A3B8" }}>{v}</span>} />
                 {Object.keys(COLORS).map(cat => <Bar key={cat} dataKey={cat} stackId="a" fill={COLORS[cat]} />)}
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Solve Rate %</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Solve Rate %</div>
             <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={dailyData.map(d => ({ ...d, rate: d.Total ? Math.round((d.Solved / d.Total) * 100) : 0 }))}>
                 <defs>
@@ -267,8 +267,8 @@ export default function App() {
                     <stop offset="100%" stopColor="#34D399" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "#334155" }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
+                <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                 <Tooltip formatter={v => [`${v}%`, "Solve Rate"]} contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
                 <Area type="monotone" dataKey="rate" stroke="#34D399" fill="url(#gR)" strokeWidth={2} dot={{ r: 3, fill: "#34D399" }} />
               </AreaChart>
@@ -279,8 +279,8 @@ export default function App() {
 
       {tab === "heatmap" && (
         <div className="card">
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact Volume by Hour of Day</div>
-          <div style={{ fontSize: 12, color: "#334155", marginBottom: 20 }}>When do customers reach out most?</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact Volume by Hour of Day</div>
+          <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 20 }}>When do customers reach out most?</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 6 }}>
             {hourMap.map(h => {
               const intensity = h.count / maxHour;
@@ -301,7 +301,7 @@ export default function App() {
             ].map(s => (
               <div key={s.label} className="card" style={{ padding: "14px 18px" }}>
                 <div style={{ fontSize: 24, fontWeight: 700, color: "#4F8EF7", fontFamily: "'DM Mono', monospace" }}>{s.val}</div>
-                <div style={{ fontSize: 10, color: "#334155", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
+                <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -311,12 +311,12 @@ export default function App() {
       {tab === "repeats" && (
         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 14 }}>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Repeat Contacts</div>
-            <div style={{ fontSize: 12, color: "#334155", marginBottom: 16 }}>Numbers that reached out more than once</div>
-            {repeats.length === 0 && <div style={{ color: "#334155", fontSize: 13 }}>No repeat contacts found.</div>}
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Repeat Contacts</div>
+            <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 16 }}>Numbers that reached out more than once</div>
+            {repeats.length === 0 && <div style={{ color: "#94A3B8", fontSize: 13 }}>No repeat contacts found.</div>}
             {repeats.slice(0, 12).map(([phone, count]) => (
               <div key={phone} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #111827" }}>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "#475569" }}>••••{phone.slice(-4)}</div>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "#94A3B8" }}>••••{phone.slice(-4)}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 80, height: 3, background: "#111827", borderRadius: 2 }}>
                     <div style={{ width: `${(count / (repeats[0]?.[1] || 1)) * 100}%`, height: "100%", background: "#4F8EF7", borderRadius: 2 }} />
@@ -327,7 +327,7 @@ export default function App() {
             ))}
           </div>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#1E3A5F", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Summary</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Summary</div>
             {[
               { label: "Unique Callers", val: Object.keys(phoneCount).length, color: "#4F8EF7" },
               { label: "Repeat Callers", val: repeats.length, color: "#F59E0B" },
@@ -335,7 +335,7 @@ export default function App() {
               { label: "Max by 1 Person", val: repeats[0]?.[1] || 0, color: "#F87171" },
             ].map(s => (
               <div key={s.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid #111827" }}>
-                <div style={{ fontSize: 12, color: "#475569" }}>{s.label}</div>
+                <div style={{ fontSize: 12, color: "#94A3B8" }}>{s.label}</div>
                 <div style={{ fontSize: 26, fontWeight: 700, color: s.color, fontFamily: "'DM Mono', monospace" }}>{s.val}</div>
               </div>
             ))}
