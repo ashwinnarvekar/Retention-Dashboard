@@ -13,26 +13,31 @@ const COLORS = {
 };
 
 function parseSheetData(raw) {
-  const json = JSON.parse(raw.replace(/^[^(]+\(/, "").replace(/\);?\s*$/, ""));
+  const json = JSON.parse(raw.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
   const cols = json.table.cols.map(c => c.label);
   return json.table.rows.map(row => {
     const obj = {};
-    row.c.forEach((cell, i) => { obj[cols[i]] = cell ? cell.v : null; });
+    row.c.forEach((cell, i) => {
+      if (!cell) { obj[cols[i]] = null; return; }
+      // For datetime, use the formatted string value (DD/MM/YYYY HH:MM:SS)
+      obj[cols[i]] = (json.table.cols[i].type === 'datetime' && cell.f) ? cell.f : (cell.v !== undefined ? cell.v : null);
+    });
     return obj;
-  }).filter(r => r["Category"] && r["Created At IST"]);
+  }).filter(r => r['Category']);
 }
 
 function parseDate(raw) {
   if (!raw) return null;
   const str = String(raw);
-  // ISO format: 2026-04-24T02:44:36.040Z
+  // Google Sheets Date() format: Date(2026,3,6,12,41,51) month is 0-indexed
+  const gMatch = str.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
+  if (gMatch) return new Date(+gMatch[1], +gMatch[2], +gMatch[3], +gMatch[4], +gMatch[5], +gMatch[6]);
+  // DD/MM/YYYY HH:MM:SS
+  const dmyMatch = str.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
+  if (dmyMatch) return new Date(+dmyMatch[3], +dmyMatch[2]-1, +dmyMatch[1], +dmyMatch[4], +dmyMatch[5], +dmyMatch[6]);
+  // ISO fallback
   const iso = new Date(str);
-  if (!isNaN(iso)) return iso;
-  // DD/MM/YYYY HH:MM:SS fallback
-  const parts = str.match(/(\d+)[\/\-](\d+)[\/\-](\d+)/);
-  if (!parts) return null;
-  const d = new Date(`${parts[3]}-${parts[2].padStart(2,"0")}-${parts[1].padStart(2,"0")}`);
-  return isNaN(d) ? null : d;
+  return isNaN(iso) ? null : iso;
 }
 
 function fmtDay(dateStr) {
