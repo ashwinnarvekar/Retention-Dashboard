@@ -181,12 +181,13 @@ export default function App() {
         {tabs.map(t => <button key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</button>)}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
         {[
           { label: "Total Conversations", val: total, accent: "#4F8EF7" },
           { label: "Solved", val: solved, accent: "#34D399" },
           { label: "In-Progress", val: inProgress, accent: "#F59E0B" },
           { label: "Concern Raised", val: concernRaised, accent: "#F87171" },
+          { label: "Solve Rate", val: `${solveRate}%`, accent: solveRate >= 90 ? "#34D399" : "#F59E0B" },
         ].map(k => (
           <div key={k.label} className="kpi" style={{ "--accent": k.accent }}>
             <div style={{ fontSize: 34, fontWeight: 700, color: k.accent, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
