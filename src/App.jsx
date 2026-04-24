@@ -214,7 +214,7 @@ export default function App() {
           { label: "Solved", val: solved, accent: "#34D399" },
           { label: "In-Progress", val: inProgress, accent: "#F59E0B" },
           { label: "Concern Raised", val: concernRaised, accent: "#F87171" },
-          { label: "Solve Rate", val: `${solveRate}%`, accent: "#A78BFA" },
+          { label: "Solve Rate", val: `${solveRate}%`, accent: solveRate >= 90 ? "#34D399" : solveRate >= 80 ? "#F59E0B" : "#F87171" },
         ].map(k => (
           <div key={k.label} className="kpi" style={{ "--accent": k.accent }}>
             <div style={{ fontSize: 34, fontWeight: 700, color: k.accent, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
