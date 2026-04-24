@@ -469,12 +469,14 @@ export default function App() {
             {/* Monthly KPIs */}
             <div className="card">
               <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Monthly Progress — April 2026</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
                   { label: "Monthly Target", val: inr(MONTHLY_TARGET), color: "#4F8EF7" },
                   { label: "Achieved So Far", val: inr(totalAchieved), color: "#34D399" },
-                  { label: "Gap", val: inr(MONTHLY_TARGET - totalAchieved), color: "#F87171" },
-                  { label: "% Achieved", val: monthlyPct + "%", color: monthlyPct >= 80 ? "#34D399" : monthlyPct >= 60 ? "#F59E0B" : "#F87171" },
+                  { label: "Delta", val: inr(MONTHLY_TARGET - totalAchieved), color: "#F87171" },
+                  { label: '% Achieved', val: monthlyPct + '%', color: monthlyPct >= 80 ? '#34D399' : monthlyPct >= 60 ? '#F59E0B' : '#F87171' },
+                  { label: 'Days Remaining', val: (() => { const today = new Date(); const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0); return lastDay.getDate() - today.getDate(); })(), color: '#4F8EF7' },
+                  { label: 'Needed Per Day', val: inr((() => { const today = new Date(); const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0); const daysLeft = lastDay.getDate() - today.getDate(); return daysLeft > 0 ? (MONTHLY_TARGET - totalAchieved) / daysLeft : 0; })()), color: '#F59E0B' },
                 ].map(k => (
                   <div key={k.label} style={{ background: "#111827", border: "1px solid #1A2236", borderRadius: 10, padding: "14px 18px" }}>
                     <div style={{ fontSize: 24, fontWeight: 800, color: k.color, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
