@@ -80,6 +80,7 @@ export default function App() {
   const [tab, setTab] = useState("overview");
   const [catFilter, setCatFilter] = useState("All");
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [dateRange, setDateRange] = useState("all");
 
   const fetchData = async () => {
     try {
@@ -107,9 +108,21 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  const getDateRangeFilter = (records) => {
+    if (dateRange === 'all') return records;
+    const now = new Date();
+    const cutoff = new Date();
+    if (dateRange === '7d') cutoff.setDate(now.getDate() - 7);
+    else if (dateRange === '14d') cutoff.setDate(now.getDate() - 14);
+    else if (dateRange === '30d') cutoff.setDate(now.getDate() - 30);
+    else if (dateRange === 'thisweek') { cutoff.setDate(now.getDate() - now.getDay()); cutoff.setHours(0,0,0,0); }
+    else if (dateRange === 'lastweek') { const s = new Date(now); s.setDate(now.getDate() - now.getDay() - 7); s.setHours(0,0,0,0); const e = new Date(s); e.setDate(s.getDate() + 7); return records.filter(r => { const d = r.parsedDate; return d && d >= s && d < e; }); }
+    return records.filter(r => r.parsedDate && r.parsedDate >= cutoff);
+  };
+
   const data = useMemo(() =>
-    catFilter === "All" ? raw : raw.filter(r => r["Category"] === catFilter),
-    [raw, catFilter]
+    getDateRangeFilter(catFilter === "All" ? raw : raw.filter(r => r["Category"] === catFilter)),
+    [raw, catFilter, dateRange]
   );
 
   const total = data.length;
@@ -212,7 +225,17 @@ export default function App() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {tab !== "revenue" && (
+          {tab !== 'revenue' && (
+            <select value={dateRange} onChange={e => setDateRange(e.target.value)}>
+              <option value='all'>All Time</option>
+              <option value='7d'>Last 7 Days</option>
+              <option value='14d'>Last 14 Days</option>
+              <option value='30d'>Last 30 Days</option>
+              <option value='thisweek'>This Week</option>
+              <option value='lastweek'>Last Week</option>
+            </select>
+          )}
+          {tab !== 'revenue' && (
             <select value={catFilter} onChange={e => setCatFilter(e.target.value)}>
               <option>All</option>
               <option>Delivery Concern</option>
