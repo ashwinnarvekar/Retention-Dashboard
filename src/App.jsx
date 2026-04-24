@@ -126,7 +126,34 @@ export default function App() {
   raw.forEach(r => { if (r["Phone"]) phoneCount[r["Phone"]] = (phoneCount[r["Phone"]] || 0) + 1; });
   const repeats = Object.entries(phoneCount).filter(([, c]) => c > 1).sort((a, b) => b[1] - a[1]);
 
-  const tabs = ["overview", "trends", "heatmap", "repeats"];
+
+  // Unsolved aging
+  const now = new Date();
+  const unsolvedAging = raw
+    .filter(r => r['Update'] === 'Concern raised' || r['Update'] === 'Concern Raised' || r['Update'] === 'In-progress')
+    .map(r => {
+      const created = parseDate(r['Created At IST'] || r['Created At']);
+      const hoursAgo = created ? Math.floor((now - created) / (1000 * 60 * 60)) : null;
+      const daysAgo = hoursAgo !== null ? Math.floor(hoursAgo / 24) : null;
+      return { ...r, hoursAgo, daysAgo };
+    })
+    .filter(r => r.hoursAgo !== null)
+    .sort((a, b) => b.hoursAgo - a.hoursAgo);
+
+  // Weekly summary
+  const startOfThisWeek = new Date(now); startOfThisWeek.setDate(now.getDate() - now.getDay());  startOfThisWeek.setHours(0,0,0,0);
+  const startOfLastWeek = new Date(startOfThisWeek); startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
+  const thisWeek = raw.filter(r => { const d = parseDate(r['Created At IST'] || r['Created At']); return d && d >= startOfThisWeek; });
+  const lastWeek = raw.filter(r => { const d = parseDate(r['Created At IST'] || r['Created At']); return d && d >= startOfLastWeek && d < startOfThisWeek; });
+  const weekStats = [
+    { label: 'Total Conversations', tw: thisWeek.length, lw: lastWeek.length, color: '#4F8EF7' },
+    { label: 'Solved', tw: thisWeek.filter(r => r['Update'] === 'Solved').length, lw: lastWeek.filter(r => r['Update'] === 'Solved').length, color: '#34D399' },
+    { label: 'In-Progress', tw: thisWeek.filter(r => r['Update'] === 'In-progress').length, lw: lastWeek.filter(r => r['Update'] === 'In-progress').length, color: '#F59E0B' },
+    { label: 'Concern Raised', tw: thisWeek.filter(r => r['Update'] === 'Concern raised' || r['Update'] === 'Concern Raised').length, lw: lastWeek.filter(r => r['Update'] === 'Concern raised' || r['Update'] === 'Concern Raised').length, color: '#F87171' },
+    { label: 'Solve Rate', tw: thisWeek.length ? Math.round((thisWeek.filter(r => r['Update'] === 'Solved').length / thisWeek.length) * 100) : 0, lw: lastWeek.length ? Math.round((lastWeek.filter(r => r['Update'] === 'Solved').length / lastWeek.length) * 100) : 0, color: '#A78BFA', pct: true },
+  ];
+
+  const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly"];
 
   if (loading && raw.length === 0) return (
     <div style={{ background: "#080B14", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
@@ -339,6 +366,59 @@ export default function App() {
                 <div style={{ fontSize: 26, fontWeight: 700, color: s.color, fontFamily: "'DM Mono', monospace" }}>{s.val}</div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {tab === 'aging' && (
+        <div className='card'>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Unsolved Aging Table</div>
+          <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 20 }}>Oldest unresolved concerns at the top — nothing should fall through the cracks</div>
+          {unsolvedAging.length === 0 && <div style={{ color: '#34D399', fontSize: 14, fontWeight: 600 }}>✓ All concerns resolved!</div>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr 0.8fr', gap: 0 }}>
+            {['Phone', 'Category', 'Status', 'Age'].map(h => (
+              <div key={h} style={{ fontSize: 10, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px', borderBottom: '1px solid #1A2236' }}>{h}</div>
+            ))}
+            {unsolvedAging.map((r, i) => {
+              const ageColor = r.hoursAgo > 48 ? '#F87171' : r.hoursAgo > 24 ? '#F59E0B' : '#34D399';
+              const ageLabel = r.daysAgo >= 1 ? r.daysAgo + 'd ' + (r.hoursAgo % 24) + 'h' : r.hoursAgo + 'h';
+              const statusColor = r['Update'] === 'In-progress' ? '#F59E0B' : '#F87171';
+              return [
+                <div key={'p'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#94A3B8' }}>••••{String(r['Phone'] || '').slice(-4)}</div>,
+                <div key={'c'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420', fontSize: 12, color: '#CBD5E1' }}>{r['Category']}</div>,
+                <div key={'s'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420' }}>
+                  <span style={{ background: statusColor + '22', color: statusColor, padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600 }}>{r['Update']}</span>
+                </div>,
+                <div key={'a'+i} style={{ padding: '10px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 13, fontWeight: 700, color: ageColor }}>{ageLabel}</div>,
+              ];
+            })}
+          </div>
+        </div>
+      )}
+
+      {tab === 'weekly' && (
+        <div style={{ display: 'grid', gap: 14 }}>
+          <div className='card'>
+            <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Weekly Summary</div>
+            <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 20 }}>This week vs last week</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 0 }}>
+              {['Metric', 'This Week', 'Last Week', 'Change'].map(h => (
+                <div key={h} style={{ fontSize: 10, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 12px', borderBottom: '2px solid #1A2236' }}>{h}</div>
+              ))}
+              {weekStats.map(s => {
+                const diff = s.tw - s.lw;
+                const pct = s.lw > 0 ? Math.round((diff / s.lw) * 100) : null;
+                const isGood = s.label === 'Solve Rate' ? diff >= 0 : (s.label === 'Total Conversations' ? null : diff <= 0);
+                const changeColor = isGood === null ? '#94A3B8' : isGood ? '#34D399' : '#F87171';
+                const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
+                return [
+                  <div key={'l'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontSize: 13, fontWeight: 600, color: s.color }}>{s.label}</div>,
+                  <div key={'tw'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 18, fontWeight: 700, color: '#F1F5F9' }}>{s.tw}{s.pct ? '%' : ''}</div>,
+                  <div key={'lw'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 18, fontWeight: 700, color: '#475569' }}>{s.lw}{s.pct ? '%' : ''}</div>,
+                  <div key={'ch'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, color: changeColor }}>{arrow} {Math.abs(diff)}{s.pct ? '%' : ''}{pct !== null ? ' (' + Math.abs(pct) + '%)' : ''}</div>,
+                ];
+              })}
+            </div>
           </div>
         </div>
       )}
