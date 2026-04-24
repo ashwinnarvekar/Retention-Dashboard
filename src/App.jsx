@@ -191,7 +191,7 @@ export default function App() {
         ].map(k => (
           <div key={k.label} className="kpi" style={{ "--accent": k.accent }}>
             <div style={{ fontSize: 34, fontWeight: 700, color: k.accent, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
-            <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.1em" }}>{k.label}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#CBD5E1", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.1em" }}>{k.label}</div>
           </div>
         ))}
       </div>
@@ -199,7 +199,7 @@ export default function App() {
       {tab === "overview" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Volume</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Volume</div>
             <ResponsiveContainer width="100%" height={185}>
               <AreaChart data={dailyData}>
                 <defs>
@@ -216,7 +216,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Split</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Split</div>
             <ResponsiveContainer width="100%" height={185}>
               <PieChart>
                 <Pie data={catData} cx="50%" cy="50%" innerRadius={48} outerRadius={74} dataKey="value" paddingAngle={3}>
@@ -228,7 +228,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
           <div className="card" style={{ gridColumn: "1 / -1" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress by Day</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress by Day</div>
             <ResponsiveContainer width="100%" height={140}>
               <BarChart data={dailyData} barSize={10}>
                 <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
@@ -246,7 +246,7 @@ export default function App() {
       {tab === "trends" && (
         <div style={{ display: "grid", gap: 14 }}>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Volume by Day</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Volume by Day</div>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={catDayData} barSize={10}>
                 <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
@@ -258,7 +258,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Solve Rate %</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Solve Rate %</div>
             <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={dailyData.map(d => ({ ...d, rate: d.Total ? Math.round((d.Solved / d.Total) * 100) : 0 }))}>
                 <defs>
@@ -279,7 +279,7 @@ export default function App() {
 
       {tab === "heatmap" && (
         <div className="card">
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact Volume by Hour of Day</div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact Volume by Hour of Day</div>
           <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 20 }}>When do customers reach out most?</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 6 }}>
             {hourMap.map(h => {
@@ -311,7 +311,7 @@ export default function App() {
       {tab === "repeats" && (
         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 14 }}>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Repeat Contacts</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Repeat Contacts</div>
             <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 16 }}>Numbers that reached out more than once</div>
             {repeats.length === 0 && <div style={{ color: "#94A3B8", fontSize: 13 }}>No repeat contacts found.</div>}
             {repeats.slice(0, 12).map(([phone, count]) => (
@@ -327,7 +327,7 @@ export default function App() {
             ))}
           </div>
           <div className="card">
-            <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Summary</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Summary</div>
             {[
               { label: "Unique Callers", val: Object.keys(phoneCount).length, color: "#4F8EF7" },
               { label: "Repeat Callers", val: repeats.length, color: "#F59E0B" },
