@@ -1,6 +1,46 @@
 import { useState, useEffect, useMemo } from "react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
+
+// Revenue data - Apr 1 to Apr 23 2026
+const REVENUE_DATA = [
+  { date: '01 Apr', Pooja: 0,        Neha: 7397,      Aasavari: 4644.67,  Mohini: 0,        Likitha: 0,        Kaushal: 4215.45  },
+  { date: '02 Apr', Pooja: 8147.60,  Neha: 10592.70,  Aasavari: 4868.88,  Mohini: 0,        Likitha: 3082.19,  Kaushal: 2100.36  },
+  { date: '03 Apr', Pooja: 1216,     Neha: 9860.60,   Aasavari: 917,      Mohini: 2473.85,  Likitha: 0,        Kaushal: 4435.37  },
+  { date: '04 Apr', Pooja: 3528.07,  Neha: 9511.40,   Aasavari: 724,      Mohini: 4124.43,  Likitha: 1598.95,  Kaushal: 2748.71  },
+  { date: '05 Apr', Pooja: 0,        Neha: 2149,      Aasavari: 0,        Mohini: 0,        Likitha: 0,        Kaushal: 0        },
+  { date: '06 Apr', Pooja: 7385.12,  Neha: 10171.71,  Aasavari: 6908.95,  Mohini: 0,        Likitha: 1647.48,  Kaushal: 4361.45  },
+  { date: '07 Apr', Pooja: 7750.95,  Neha: 6583.11,   Aasavari: 1371,     Mohini: 0,        Likitha: 1224.55,  Kaushal: 3723.75  },
+  { date: '08 Apr', Pooja: 5448.89,  Neha: 9080.31,   Aasavari: 1672,     Mohini: 0,        Likitha: 3069.74,  Kaushal: 2359     },
+  { date: '09 Apr', Pooja: 8884.30,  Neha: 12809.87,  Aasavari: 0,        Mohini: 0,        Likitha: 3713.84,  Kaushal: 3980.74  },
+  { date: '10 Apr', Pooja: 6429.80,  Neha: 11190.22,  Aasavari: 8402.43,  Mohini: 1254,     Likitha: 0,        Kaushal: 3895.48  },
+  { date: '11 Apr', Pooja: 7639.36,  Neha: 8772.29,   Aasavari: 4425.78,  Mohini: 0,        Likitha: 0,        Kaushal: 5131.48  },
+  { date: '12 Apr', Pooja: 0,        Neha: 0,         Aasavari: 0,        Mohini: 0,        Likitha: 0,        Kaushal: 0        },
+  { date: '13 Apr', Pooja: 11455.42, Neha: 10350.71,  Aasavari: 1758.10,  Mohini: 3316.85,  Likitha: 0,        Kaushal: 5668.07  },
+  { date: '14 Apr', Pooja: 2092.75,  Neha: 11114.46,  Aasavari: 5447.26,  Mohini: 5415.35,  Likitha: 0,        Kaushal: 2192.15  },
+  { date: '15 Apr', Pooja: 4966.12,  Neha: 11079.84,  Aasavari: 4971.51,  Mohini: 1211.25,  Likitha: 3054.35,  Kaushal: 9044.26  },
+  { date: '16 Apr', Pooja: 12989.21, Neha: 7545.22,   Aasavari: 1573.29,  Mohini: 0,        Likitha: 2713.20,  Kaushal: 2154.35  },
+  { date: '17 Apr', Pooja: 10796.37, Neha: 10793.90,  Aasavari: 2673.37,  Mohini: 0,        Likitha: 3764.42,  Kaushal: 3773.41  },
+  { date: '18 Apr', Pooja: 8703.72,  Neha: 8989.29,   Aasavari: 0,        Mohini: 2489.10,  Likitha: 0,        Kaushal: 9223.14  },
+  { date: '20 Apr', Pooja: 4000.48,  Neha: 11482.52,  Aasavari: 4180.86,  Mohini: 3582.78,  Likitha: 0,        Kaushal: 6571.87  },
+  { date: '21 Apr', Pooja: 7749.33,  Neha: 11887.40,  Aasavari: 5397.52,  Mohini: 3648.11,  Likitha: 312.32,   Kaushal: 0        },
+  { date: '22 Apr', Pooja: 380,      Neha: 7200.04,   Aasavari: 7965.19,  Mohini: 380,      Likitha: 0,        Kaushal: 3165.40  },
+  { date: '23 Apr', Pooja: 6972.40,  Neha: 8892.69,   Aasavari: 1968,     Mohini: 805.60,   Likitha: 380,      Kaushal: 11093.59 },
+];
+
+const COACHES = ['Pooja', 'Neha', 'Aasavari', 'Mohini', 'Likitha', 'Kaushal'];
+const COACH_COLORS = {
+  Pooja:    '#4F8EF7',
+  Neha:     '#34D399',
+  Aasavari: '#F59E0B',
+  Mohini:   '#A78BFA',
+  Likitha:  '#F87171',
+  Kaushal:  '#38BDF8',
+};
+const DAILY_TEAM_TARGET = 44200;
+const MONTHLY_TARGET = 1193400;
+const MONTHLY_ACHIEVED = 556489;
+
 const SHEET_ID = "1f27PdvxhDcJWYZjhqBD6UlFe9e5M4GuSiuZlvKXZgLg";
 const SHEET_NAME = "Sheet1";
 const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
@@ -153,7 +193,7 @@ export default function App() {
     { label: 'Solve Rate', tw: thisWeek.length ? Math.round((thisWeek.filter(r => r['Update'] === 'Solved').length / thisWeek.length) * 100) : 0, lw: lastWeek.length ? Math.round((lastWeek.filter(r => r['Update'] === 'Solved').length / lastWeek.length) * 100) : 0, color: '#A78BFA', pct: true },
   ];
 
-  const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly"];
+  const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "revenue"];
 
   if (loading && raw.length === 0) return (
     <div style={{ background: "#080B14", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
@@ -425,6 +465,93 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {tab === 'revenue' && (() => {
+        const revenueWithTotal = REVENUE_DATA.map(d => ({
+          ...d,
+          total: COACHES.reduce((s, c) => s + (d[c] || 0), 0)
+        }));
+        const totalAchieved = revenueWithTotal.reduce((s, d) => s + d.total, 0);
+        const monthlyPct = Math.round((totalAchieved / MONTHLY_TARGET) * 100);
+        const coachTotals = COACHES.map(coach => ({
+          name: coach,
+          total: REVENUE_DATA.reduce((s, d) => s + (d[coach] || 0), 0),
+          color: COACH_COLORS[coach]
+        })).sort((a, b) => b.total - a.total);
+
+        return (
+          <div style={{ display: 'grid', gap: 14 }}>
+            {/* Monthly progress */}
+            <div className='card'>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Monthly Progress — April 2026</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+                {[
+                  { label: 'Monthly Target', val: '₹' + (MONTHLY_TARGET/1000).toFixed(0) + 'K', color: '#4F8EF7' },
+                  { label: 'Achieved So Far', val: '₹' + Math.round(totalAchieved/1000) + 'K', color: '#34D399' },
+                  { label: 'Gap', val: '₹' + Math.round((MONTHLY_TARGET - totalAchieved)/1000) + 'K', color: '#F87171' },
+                  { label: '% Achieved', val: monthlyPct + '%', color: monthlyPct >= 80 ? '#34D399' : monthlyPct >= 60 ? '#F59E0B' : '#F87171' },
+                ].map(k => (
+                  <div key={k.label} style={{ background: '#111827', border: '1px solid #1A2236', borderRadius: 10, padding: '14px 18px' }}>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: k.color, fontFamily: 'DM Mono, monospace', lineHeight: 1 }}>{k.val}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{k.label}</div>
+                  </div>
+                ))}
+              </div>
+              {/* Progress bar */}
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 8 }}>MONTHLY ACHIEVEMENT PROGRESS</div>
+              <div style={{ background: '#111827', borderRadius: 8, height: 20, overflow: 'hidden', border: '1px solid #1A2236' }}>
+                <div style={{ width: monthlyPct + '%', height: '100%', background: 'linear-gradient(90deg, #4F8EF7, #34D399)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{monthlyPct}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Daily team achieved vs target */}
+            <div className='card'>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Daily Team Revenue — Achieved vs Target (₹44,200)</div>
+              <ResponsiveContainer width='100%' height={220}>
+                <BarChart data={revenueWithTotal} barSize={14}>
+                  <XAxis dataKey='date' tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + (v/1000).toFixed(0) + 'K'} />
+                  <Tooltip formatter={(v, n) => ['₹' + v.toFixed(0), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
+                  <Bar dataKey='total' name='Achieved' fill='#4F8EF7' radius={[3,3,0,0]} />
+                  {revenueWithTotal.map((d, i) => null)}
+                  <Bar dataKey={() => DAILY_TEAM_TARGET} name='Target' fill='transparent' stroke='#F87171' strokeWidth={2} strokeDasharray='4 2' radius={[3,3,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Per coach daily stacked */}
+            <div className='card'>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Daily Revenue by Skin Coach</div>
+              <ResponsiveContainer width='100%' height={220}>
+                <BarChart data={REVENUE_DATA} barSize={14}>
+                  <XAxis dataKey='date' tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + (v/1000).toFixed(0) + 'K'} />
+                  <Tooltip formatter={(v, n) => ['₹' + v.toFixed(0), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
+                  <Legend iconType='circle' iconSize={7} formatter={v => <span style={{ fontSize: 10, color: '#94A3B8' }}>{v}</span>} />
+                  {COACHES.map(coach => <Bar key={coach} dataKey={coach} stackId='a' fill={COACH_COLORS[coach]} />)}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Coach leaderboard */}
+            <div className='card'>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Coach Leaderboard — April Total</div>
+              {coachTotals.map((coach, i) => (
+                <div key={coach.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid #111827' }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#475569', width: 20, fontFamily: 'DM Mono, monospace' }}>#{i+1}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#CBD5E1', width: 80 }}>{coach.name}</div>
+                  <div style={{ flex: 1, background: '#111827', borderRadius: 4, height: 8, overflow: 'hidden' }}>
+                    <div style={{ width: (coach.total / coachTotals[0].total * 100) + '%', height: '100%', background: coach.color, borderRadius: 4 }} />
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: coach.color, fontFamily: 'DM Mono, monospace', width: 80, textAlign: 'right' }}>₹{Math.round(coach.total/1000)}K</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
