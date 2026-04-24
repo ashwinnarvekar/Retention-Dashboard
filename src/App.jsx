@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
-
-// Revenue data - Apr 1 to Apr 23 2026
 const REVENUE_DATA = [
   { date: '01 Apr', Pooja: 0,        Neha: 7397,      Aasavari: 4644.67,  Mohini: 0,        Likitha: 0,        Kaushal: 4215.45  },
   { date: '02 Apr', Pooja: 8147.60,  Neha: 10592.70,  Aasavari: 4868.88,  Mohini: 0,        Likitha: 3082.19,  Kaushal: 2100.36  },
@@ -29,17 +27,9 @@ const REVENUE_DATA = [
 ];
 
 const COACHES = ['Pooja', 'Neha', 'Aasavari', 'Mohini', 'Likitha', 'Kaushal'];
-const COACH_COLORS = {
-  Pooja:    '#4F8EF7',
-  Neha:     '#34D399',
-  Aasavari: '#F59E0B',
-  Mohini:   '#A78BFA',
-  Likitha:  '#F87171',
-  Kaushal:  '#38BDF8',
-};
+const COACH_COLORS = { Pooja: '#4F8EF7', Neha: '#34D399', Aasavari: '#F59E0B', Mohini: '#A78BFA', Likitha: '#F87171', Kaushal: '#38BDF8' };
 const DAILY_TEAM_TARGET = 44200;
 const MONTHLY_TARGET = 1193400;
-const MONTHLY_ACHIEVED = 556489;
 
 const SHEET_ID = "1f27PdvxhDcJWYZjhqBD6UlFe9e5M4GuSiuZlvKXZgLg";
 const SHEET_NAME = "Sheet1";
@@ -47,9 +37,9 @@ const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=
 
 const COLORS = {
   "Delivery Concern": "#4F8EF7",
-  "Usage Concern":    "#F59E0B",
-  "Skin Concern":     "#A78BFA",
-  "Other Concern":    "#34D399",
+  "Usage Concern": "#F59E0B",
+  "Skin Concern": "#A78BFA",
+  "Other Concern": "#34D399",
 };
 
 function parseSheetData(raw) {
@@ -59,7 +49,6 @@ function parseSheetData(raw) {
     const obj = {};
     row.c.forEach((cell, i) => {
       if (!cell) { obj[cols[i]] = null; return; }
-      // For datetime, use the formatted string value (DD/MM/YYYY HH:MM:SS)
       obj[cols[i]] = (json.table.cols[i].type === 'datetime' && cell.f) ? cell.f : (cell.v !== undefined ? cell.v : null);
     });
     return obj;
@@ -69,13 +58,10 @@ function parseSheetData(raw) {
 function parseDate(raw) {
   if (!raw) return null;
   const str = String(raw);
-  // Google Sheets Date() format: Date(2026,3,6,12,41,51) month is 0-indexed
   const gMatch = str.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
   if (gMatch) return new Date(+gMatch[1], +gMatch[2], +gMatch[3], +gMatch[4], +gMatch[5], +gMatch[6]);
-  // DD/MM/YYYY HH:MM:SS
   const dmyMatch = str.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
   if (dmyMatch) return new Date(+dmyMatch[3], +dmyMatch[2]-1, +dmyMatch[1], +dmyMatch[4], +dmyMatch[5], +dmyMatch[6]);
-  // ISO fallback
   const iso = new Date(str);
   return isNaN(iso) ? null : iso;
 }
@@ -84,6 +70,8 @@ function fmtDay(dateStr) {
   const d = new Date(dateStr);
   return `${d.getDate()} Apr`;
 }
+
+const inr = (v) => '₹' + Math.round(v).toLocaleString('en-IN');
 
 export default function App() {
   const [raw, setRaw] = useState([]);
@@ -100,16 +88,11 @@ export default function App() {
       const text = await res.text();
       const data = parseSheetData(text);
       const enriched = data.map(r => {
-        const d = parseDate(r["Created At IST"]);
-        return {
-          ...r,
-          parsedDate: d,
-          dateStr: d ? d.toISOString().split("T")[0] : null,
-          hour: d ? d.getHours() : null,
-        };
+        const d = parseDate(r['Created At IST'] || r['Created At']);
+        return { ...r, parsedDate: d, dateStr: d ? d.toISOString().split('T')[0] : null, hour: d ? d.getHours() : null };
       }).filter(r => r.dateStr);
       setRaw(enriched);
-      setLastUpdated(new Date().toLocaleTimeString("en-IN"));
+      setLastUpdated(new Date().toLocaleTimeString('en-IN'));
       setError(null);
     } catch (e) {
       setError("Could not load data. Make sure the sheet is set to 'Anyone with link can view'.");
@@ -166,8 +149,6 @@ export default function App() {
   raw.forEach(r => { if (r["Phone"]) phoneCount[r["Phone"]] = (phoneCount[r["Phone"]] || 0) + 1; });
   const repeats = Object.entries(phoneCount).filter(([, c]) => c > 1).sort((a, b) => b[1] - a[1]);
 
-
-  // Unsolved aging
   const now = new Date();
   const unsolvedAging = raw
     .filter(r => r['Update'] === 'Concern raised' || r['Update'] === 'Concern Raised' || r['Update'] === 'In-progress')
@@ -180,8 +161,7 @@ export default function App() {
     .filter(r => r.hoursAgo !== null)
     .sort((a, b) => b.hoursAgo - a.hoursAgo);
 
-  // Weekly summary
-  const startOfThisWeek = new Date(now); startOfThisWeek.setDate(now.getDate() - now.getDay());  startOfThisWeek.setHours(0,0,0,0);
+  const startOfThisWeek = new Date(now); startOfThisWeek.setDate(now.getDate() - now.getDay()); startOfThisWeek.setHours(0,0,0,0);
   const startOfLastWeek = new Date(startOfThisWeek); startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
   const thisWeek = raw.filter(r => { const d = parseDate(r['Created At IST'] || r['Created At']); return d && d >= startOfThisWeek; });
   const lastWeek = raw.filter(r => { const d = parseDate(r['Created At IST'] || r['Created At']); return d && d >= startOfLastWeek && d < startOfThisWeek; });
@@ -223,46 +203,54 @@ export default function App() {
         .rbtn:hover { background: #4F8EF7; color: white; }
       `}</style>
 
+      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em", color: "#F1F5F9" }}>Retention Dashboard</div>
-          <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 4, fontFamily: "'DM Mono', monospace", letterSpacing: "0.05em" }}>
+          <div style={{ fontSize: 11, color: "#1E3A5F", marginTop: 4, fontFamily: "'DM Mono', monospace", letterSpacing: "0.05em" }}>
             ● LIVE · {raw.length} records{lastUpdated ? ` · synced ${lastUpdated}` : ""}
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <select value={catFilter} onChange={e => setCatFilter(e.target.value)}>
-            <option>All</option>
-            <option>Delivery Concern</option>
-            <option>Usage Concern</option>
-            <option>Skin Concern</option>
-            <option>Other Concern</option>
-          </select>
+          {tab !== "revenue" && (
+            <select value={catFilter} onChange={e => setCatFilter(e.target.value)}>
+              <option>All</option>
+              <option>Delivery Concern</option>
+              <option>Usage Concern</option>
+              <option>Skin Concern</option>
+              <option>Other Concern</option>
+            </select>
+          )}
           <button className="rbtn" onClick={fetchData}>↻ Refresh</button>
         </div>
       </div>
 
       {error && <div style={{ background: "#1a0a0a", border: "1px solid #7f1d1d", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#fca5a5", marginBottom: 16 }}>{error}</div>}
 
+      {/* Tabs */}
       <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "#0F1420", padding: 5, borderRadius: 10, width: "fit-content", border: "1px solid #1A2236" }}>
         {tabs.map(t => <button key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</button>)}
       </div>
 
-      {tab !== "revenue" && <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
-        {[
-          { label: "Total Conversations", val: total, accent: "#4F8EF7" },
-          { label: "Solved", val: solved, accent: "#34D399" },
-          { label: "In-Progress", val: inProgress, accent: "#F59E0B" },
-          { label: "Concern Raised", val: concernRaised, accent: "#F87171" },
-          { label: "Solve Rate", val: `${solveRate}%`, accent: solveRate >= 90 ? "#34D399" : solveRate >= 80 ? "#F59E0B" : "#F87171" },
-        ].map(k => (
-          <div key={k.label} className="kpi" style={{ "--accent": k.accent }}>
-            <div style={{ fontSize: 34, fontWeight: 700, color: k.accent, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#CBD5E1", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.1em" }}>{k.label}</div>
-          </div>
-        ))}
-      </div>
+      {/* KPI Cards — hidden on revenue tab */}
+      {tab !== "revenue" && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
+          {[
+            { label: "Total Conversations", val: total, accent: "#4F8EF7" },
+            { label: "Solved", val: solved, accent: "#34D399" },
+            { label: "In-Progress", val: inProgress, accent: "#F59E0B" },
+            { label: "Concern Raised", val: concernRaised, accent: "#F87171" },
+            { label: "Solve Rate", val: `${solveRate}%`, accent: solveRate >= 90 ? "#34D399" : solveRate >= 80 ? "#F59E0B" : "#F87171" },
+          ].map(k => (
+            <div key={k.label} className="kpi" style={{ "--accent": k.accent }}>
+              <div style={{ fontSize: 34, fontWeight: 700, color: k.accent, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#CBD5E1", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.1em" }}>{k.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
+      {/* OVERVIEW */}
       {tab === "overview" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <div className="card">
@@ -295,7 +283,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
           <div className="card" style={{ gridColumn: "1 / -1" }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress by Day</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress vs Concern Raised by Day</div>
             <ResponsiveContainer width="100%" height={140}>
               <BarChart data={dailyData} barSize={10}>
                 <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
@@ -310,6 +298,7 @@ export default function App() {
         </div>
       )}
 
+      {/* TRENDS */}
       {tab === "trends" && (
         <div style={{ display: "grid", gap: 14 }}>
           <div className="card">
@@ -344,6 +333,7 @@ export default function App() {
         </div>
       )}
 
+      {/* HEATMAP */}
       {tab === "heatmap" && (
         <div className="card">
           <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact Volume by Hour of Day</div>
@@ -354,7 +344,7 @@ export default function App() {
               const bg = intensity === 0 ? "#111827" : `rgba(79,142,247,${0.1 + intensity * 0.9})`;
               return (
                 <div key={h.hour} className="heat-cell" style={{ background: bg }} title={`${h.hour}:00 — ${h.count} contacts`}>
-                  <div style={{ fontSize: 9, color: intensity > 0.4 ? "white" : "#334155" }}>{h.hour}h</div>
+                  <div style={{ fontSize: 9, color: intensity > 0.4 ? "white" : "#94A3B8" }}>{h.hour}h</div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: intensity > 0.4 ? "white" : "#475569", fontFamily: "'DM Mono', monospace" }}>{h.count}</div>
                 </div>
               );
@@ -368,13 +358,14 @@ export default function App() {
             ].map(s => (
               <div key={s.label} className="card" style={{ padding: "14px 18px" }}>
                 <div style={{ fontSize: 24, fontWeight: 700, color: "#4F8EF7", fontFamily: "'DM Mono', monospace" }}>{s.val}</div>
-                <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       )}
 
+      {/* REPEATS */}
       {tab === "repeats" && (
         <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 14 }}>
           <div className="card">
@@ -383,7 +374,7 @@ export default function App() {
             {repeats.length === 0 && <div style={{ color: "#94A3B8", fontSize: 13 }}>No repeat contacts found.</div>}
             {repeats.slice(0, 12).map(([phone, count]) => (
               <div key={phone} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #111827" }}>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "#94A3B8" }}>••••{phone.slice(-4)}</div>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: "#CBD5E1", fontWeight: 600 }}>{String(phone).replace(/\.0$/, '')}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 80, height: 3, background: "#111827", borderRadius: 2 }}>
                     <div style={{ width: `${(count / (repeats[0]?.[1] || 1)) * 100}%`, height: "100%", background: "#4F8EF7", borderRadius: 2 }} />
@@ -402,7 +393,7 @@ export default function App() {
               { label: "Max by 1 Person", val: repeats[0]?.[1] || 0, color: "#F87171" },
             ].map(s => (
               <div key={s.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderBottom: "1px solid #111827" }}>
-                <div style={{ fontSize: 12, color: "#94A3B8" }}>{s.label}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8" }}>{s.label}</div>
                 <div style={{ fontSize: 26, fontWeight: 700, color: s.color, fontFamily: "'DM Mono', monospace" }}>{s.val}</div>
               </div>
             ))}
@@ -410,142 +401,133 @@ export default function App() {
         </div>
       )}
 
-      {tab === 'aging' && (
-        <div className='card'>
-          <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Unsolved Aging Table</div>
-          <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 20 }}>Oldest unresolved concerns at the top — nothing should fall through the cracks</div>
-          {unsolvedAging.length === 0 && <div style={{ color: '#34D399', fontSize: 14, fontWeight: 600 }}>✓ All concerns resolved!</div>}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.4fr 1.2fr 1fr 0.8fr', gap: 0 }}>
-            {['Phone', 'Category', 'Date Raised', 'Status', 'Age'].map(h => (
-              <div key={h} style={{ fontSize: 11, fontWeight: 800, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '10px 12px', borderBottom: '2px solid #1A2236' }}>{h}</div>
+      {/* AGING */}
+      {tab === "aging" && (
+        <div className="card">
+          <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Unsolved Aging Table</div>
+          <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 20 }}>Oldest unresolved concerns at the top</div>
+          {unsolvedAging.length === 0 && <div style={{ color: "#34D399", fontSize: 14, fontWeight: 600 }}>✓ All concerns resolved!</div>}
+          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.2fr 1fr 0.8fr", gap: 0 }}>
+            {["Phone", "Category", "Date Raised", "Status", "Age"].map(h => (
+              <div key={h} style={{ fontSize: 11, fontWeight: 800, color: "#CBD5E1", textTransform: "uppercase", letterSpacing: "0.08em", padding: "10px 12px", borderBottom: "2px solid #1A2236" }}>{h}</div>
             ))}
             {unsolvedAging.map((r, i) => {
-              const ageColor = r.hoursAgo > 48 ? '#F87171' : r.hoursAgo > 24 ? '#F59E0B' : '#34D399';
-              const ageLabel = r.daysAgo >= 1 ? r.daysAgo + 'd ' + (r.hoursAgo % 24) + 'h' : r.hoursAgo + 'h';
-              const statusColor = r['Update'] === 'In-progress' ? '#F59E0B' : '#F87171';
-              const dateLabel = r['Created At IST'] ? String(r['Created At IST']).slice(0, 16) : '-';
-              const phone = String(r['Phone'] || '').replace(/.0$/, '');
+              const ageColor = r.hoursAgo > 48 ? "#F87171" : r.hoursAgo > 24 ? "#F59E0B" : "#34D399";
+              const ageLabel = r.daysAgo >= 1 ? `${r.daysAgo}d ${r.hoursAgo % 24}h` : `${r.hoursAgo}h`;
+              const statusColor = r["Update"] === "In-progress" ? "#F59E0B" : "#F87171";
+              const dateLabel = r["Created At IST"] ? String(r["Created At IST"]).slice(0, 16) : "-";
+              const phone = String(r["Phone"] || "").replace(/\.0$/, "");
               return [
-                <div key={'p'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontFamily: 'DM Mono, monospace', fontSize: 13, fontWeight: 600, color: '#F1F5F9' }}>{phone}</div>,
-                <div key={'c'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontSize: 13, fontWeight: 600, color: '#CBD5E1' }}>{r['Category']}</div>,
-                <div key={'d'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#94A3B8' }}>{dateLabel}</div>,
-                <div key={'s'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827' }}>
-                  <span style={{ background: statusColor + '22', color: statusColor, padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700 }}>{r['Update']}</span>
+                <div key={"p"+i} style={{ padding: "12px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 600, color: "#F1F5F9" }}>{phone}</div>,
+                <div key={"c"+i} style={{ padding: "12px 12px", borderBottom: "1px solid #111827", fontSize: 13, fontWeight: 600, color: "#CBD5E1" }}>{r["Category"]}</div>,
+                <div key={"d"+i} style={{ padding: "12px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 12, color: "#94A3B8" }}>{dateLabel}</div>,
+                <div key={"s"+i} style={{ padding: "12px 12px", borderBottom: "1px solid #111827" }}>
+                  <span style={{ background: statusColor + "22", color: statusColor, padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>{r["Update"]}</span>
                 </div>,
-                <div key={'a'+i} style={{ padding: '12px 12px', borderBottom: '1px solid #111827', fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 800, color: ageColor }}>{ageLabel}</div>,
+                <div key={"a"+i} style={{ padding: "12px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 800, color: ageColor }}>{ageLabel}</div>,
               ];
             })}
           </div>
         </div>
       )}
 
-      {tab === 'weekly' && (
-        <div style={{ display: 'grid', gap: 14 }}>
-          <div className='card'>
-            <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Weekly Summary</div>
-            <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 20 }}>This week vs last week</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 0 }}>
-              {['Metric', 'This Week', 'Last Week', 'Change'].map(h => (
-                <div key={h} style={{ fontSize: 11, fontWeight: 800, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '10px 12px', borderBottom: '2px solid #1A2236' }}>{h}</div>
-              ))}
-              {weekStats.map(s => {
-                const diff = s.tw - s.lw;
-                const pct = s.lw > 0 ? Math.round((diff / s.lw) * 100) : null;
-                const isGood = s.label === 'Solve Rate' ? diff >= 0 : (s.label === 'Total Conversations' ? null : diff <= 0);
-                const changeColor = isGood === null ? '#94A3B8' : isGood ? '#34D399' : '#F87171';
-                const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-                return [
-                  <div key={'l'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontSize: 13, fontWeight: 600, color: s.color }}>{s.label}</div>,
-                  <div key={'tw'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 18, fontWeight: 700, color: '#F1F5F9' }}>{s.tw}{s.pct ? '%' : ''}</div>,
-                  <div key={'lw'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 18, fontWeight: 700, color: '#475569' }}>{s.lw}{s.pct ? '%' : ''}</div>,
-                  <div key={'ch'+s.label} style={{ padding: '14px 12px', borderBottom: '1px solid #0F1420', fontFamily: 'DM Mono, monospace', fontSize: 14, fontWeight: 700, color: changeColor }}>{arrow} {Math.abs(diff)}{s.pct ? '%' : ''}{pct !== null ? ' (' + Math.abs(pct) + '%)' : ''}</div>,
-                ];
-              })}
-            </div>
+      {/* WEEKLY */}
+      {tab === "weekly" && (
+        <div className="card">
+          <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Weekly Summary</div>
+          <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 20 }}>This week vs last week</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", gap: 0 }}>
+            {["Metric", "This Week", "Last Week", "Change"].map(h => (
+              <div key={h} style={{ fontSize: 11, fontWeight: 800, color: "#CBD5E1", textTransform: "uppercase", letterSpacing: "0.08em", padding: "10px 12px", borderBottom: "2px solid #1A2236" }}>{h}</div>
+            ))}
+            {weekStats.map(s => {
+              const diff = s.tw - s.lw;
+              const pct = s.lw > 0 ? Math.round((diff / s.lw) * 100) : null;
+              const isGood = s.label === "Solve Rate" ? diff >= 0 : s.label === "Total Conversations" ? null : diff <= 0;
+              const changeColor = isGood === null ? "#94A3B8" : isGood ? "#34D399" : "#F87171";
+              const arrow = diff > 0 ? "↑" : diff < 0 ? "↓" : "→";
+              return [
+                <div key={"l"+s.label} style={{ padding: "14px 12px", borderBottom: "1px solid #111827", fontSize: 13, fontWeight: 700, color: s.color }}>{s.label}</div>,
+                <div key={"tw"+s.label} style={{ padding: "14px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: "#F1F5F9" }}>{s.tw}{s.pct ? "%" : ""}</div>,
+                <div key={"lw"+s.label} style={{ padding: "14px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: "#475569" }}>{s.lw}{s.pct ? "%" : ""}</div>,
+                <div key={"ch"+s.label} style={{ padding: "14px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 14, fontWeight: 700, color: changeColor }}>{arrow} {Math.abs(diff)}{s.pct ? "%" : ""}{pct !== null ? ` (${Math.abs(pct)}%)` : ""}</div>,
+              ];
+            })}
           </div>
         </div>
       )}
 
-      {tab === 'revenue' && (() => {
-        const revenueWithTotal = REVENUE_DATA.map(d => ({
-          ...d,
-          total: COACHES.reduce((s, c) => s + (d[c] || 0), 0)
-        }));
+      {/* REVENUE */}
+      {tab === "revenue" && (() => {
+        const revenueWithTotal = REVENUE_DATA.map(d => ({ ...d, total: COACHES.reduce((s, c) => s + (d[c] || 0), 0) }));
         const totalAchieved = revenueWithTotal.reduce((s, d) => s + d.total, 0);
         const monthlyPct = Math.round((totalAchieved / MONTHLY_TARGET) * 100);
-        const coachTotals = COACHES.map(coach => ({
-          name: coach,
-          total: REVENUE_DATA.reduce((s, d) => s + (d[coach] || 0), 0),
-          color: COACH_COLORS[coach]
-        })).sort((a, b) => b.total - a.total);
+        const coachTotals = COACHES.map(coach => ({ name: coach, total: REVENUE_DATA.reduce((s, d) => s + (d[coach] || 0), 0), color: COACH_COLORS[coach] })).sort((a, b) => b.total - a.total);
 
         return (
-          <div style={{ display: 'grid', gap: 14 }}>
-            {/* Monthly progress */}
-            <div className='card'>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Monthly Progress — April 2026</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+          <div style={{ display: "grid", gap: 14 }}>
+            {/* Monthly KPIs */}
+            <div className="card">
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Monthly Progress — April 2026</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
                 {[
-                  { label: 'Monthly Target', val: '₹' + MONTHLY_TARGET.toLocaleString('en-IN'), color: '#4F8EF7' },
-                  { label: 'Achieved So Far', val: '₹' + Math.round(totalAchieved).toLocaleString('en-IN'), color: '#34D399' },
-                  { label: 'Gap', val: '₹' + Math.round(MONTHLY_TARGET - totalAchieved).toLocaleString('en-IN'), color: '#F87171' },
-                  { label: '% Achieved', val: monthlyPct + '%', color: monthlyPct >= 80 ? '#34D399' : monthlyPct >= 60 ? '#F59E0B' : '#F87171' },
+                  { label: "Monthly Target", val: inr(MONTHLY_TARGET), color: "#4F8EF7" },
+                  { label: "Achieved So Far", val: inr(totalAchieved), color: "#34D399" },
+                  { label: "Gap", val: inr(MONTHLY_TARGET - totalAchieved), color: "#F87171" },
+                  { label: "% Achieved", val: monthlyPct + "%", color: monthlyPct >= 80 ? "#34D399" : monthlyPct >= 60 ? "#F59E0B" : "#F87171" },
                 ].map(k => (
-                  <div key={k.label} style={{ background: '#111827', border: '1px solid #1A2236', borderRadius: 10, padding: '14px 18px' }}>
-                    <div style={{ fontSize: 26, fontWeight: 800, color: k.color, fontFamily: 'DM Mono, monospace', lineHeight: 1 }}>{k.val}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{k.label}</div>
+                  <div key={k.label} style={{ background: "#111827", border: "1px solid #1A2236", borderRadius: 10, padding: "14px 18px" }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: k.color, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", marginTop: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>{k.label}</div>
                   </div>
                 ))}
               </div>
-              {/* Progress bar */}
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 8 }}>MONTHLY ACHIEVEMENT PROGRESS</div>
-              <div style={{ background: '#111827', borderRadius: 8, height: 20, overflow: 'hidden', border: '1px solid #1A2236' }}>
-                <div style={{ width: monthlyPct + '%', height: '100%', background: 'linear-gradient(90deg, #4F8EF7, #34D399)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 8 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: 'white' }}>{monthlyPct}%</span>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", marginBottom: 8 }}>MONTHLY ACHIEVEMENT PROGRESS</div>
+              <div style={{ background: "#111827", borderRadius: 8, height: 20, overflow: "hidden", border: "1px solid #1A2236" }}>
+                <div style={{ width: monthlyPct + "%", height: "100%", background: "linear-gradient(90deg, #4F8EF7, #34D399)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "white" }}>{monthlyPct}%</span>
                 </div>
               </div>
             </div>
 
-            {/* Daily team achieved vs target */}
-            <div className='card'>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Daily Team Revenue — Achieved vs Target (₹44,200)</div>
-              <ResponsiveContainer width='100%' height={220}>
+            {/* Daily team chart */}
+            <div className="card">
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Team Revenue — Achieved vs Target ({inr(DAILY_TEAM_TARGET)})</div>
+              <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={revenueWithTotal} barSize={14}>
-                  <XAxis dataKey='date' tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + v.toLocaleString('en-IN')} />
-                  <Tooltip formatter={(v, n) => ['₹' + Math.round(v).toLocaleString('en-IN'), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
-                  <Bar dataKey='total' name='Achieved' fill='#4F8EF7' radius={[3,3,0,0]} />
-                  {revenueWithTotal.map((d, i) => null)}
-                  <Bar dataKey={() => DAILY_TEAM_TARGET} name='Target' fill='transparent' stroke='#F87171' strokeWidth={2} strokeDasharray='4 2' radius={[3,3,0,0]} />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} tickFormatter={v => inr(v)} />
+                  <Tooltip formatter={(v, n) => [inr(v), n]} contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
+                  <Bar dataKey="total" name="Achieved" fill="#4F8EF7" radius={[3,3,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Per coach daily stacked */}
-            <div className='card'>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Daily Revenue by Skin Coach</div>
-              <ResponsiveContainer width='100%' height={220}>
+            {/* Per coach stacked */}
+            <div className="card">
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Revenue by Skin Coach</div>
+              <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={REVENUE_DATA} barSize={14}>
-                  <XAxis dataKey='date' tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 9, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={v => '₹' + v.toLocaleString('en-IN')} />
-                  <Tooltip formatter={(v, n) => ['₹' + Math.round(v).toLocaleString('en-IN'), n]} contentStyle={{ background: '#0F1420', border: '1px solid #1A2236', borderRadius: 8, fontSize: 11 }} />
-                  <Legend iconType='circle' iconSize={7} formatter={v => <span style={{ fontSize: 10, color: '#94A3B8' }}>{v}</span>} />
-                  {COACHES.map(coach => <Bar key={coach} dataKey={coach} stackId='a' fill={COACH_COLORS[coach]} />)}
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} tickFormatter={v => inr(v)} />
+                  <Tooltip formatter={(v, n) => [inr(v), n]} contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
+                  <Legend iconType="circle" iconSize={7} formatter={v => <span style={{ fontSize: 10, color: "#94A3B8" }}>{v}</span>} />
+                  {COACHES.map(coach => <Bar key={coach} dataKey={coach} stackId="a" fill={COACH_COLORS[coach]} />)}
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Coach leaderboard */}
-            <div className='card'>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#CBD5E1', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Coach Leaderboard — April Total</div>
+            {/* Leaderboard */}
+            <div className="card">
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Coach Leaderboard — April Total</div>
               {coachTotals.map((coach, i) => (
-                <div key={coach.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid #111827' }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#475569', width: 20, fontFamily: 'DM Mono, monospace' }}>#{i+1}</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#CBD5E1', width: 80 }}>{coach.name}</div>
-                  <div style={{ flex: 1, background: '#111827', borderRadius: 4, height: 8, overflow: 'hidden' }}>
-                    <div style={{ width: (coach.total / coachTotals[0].total * 100) + '%', height: '100%', background: coach.color, borderRadius: 4 }} />
+                <div key={coach.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid #111827" }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "#475569", width: 20, fontFamily: "'DM Mono', monospace" }}>#{i+1}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#CBD5E1", width: 80 }}>{coach.name}</div>
+                  <div style={{ flex: 1, background: "#111827", borderRadius: 4, height: 8, overflow: "hidden" }}>
+                    <div style={{ width: `${(coach.total / coachTotals[0].total * 100)}%`, height: "100%", background: coach.color, borderRadius: 4 }} />
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: coach.color, fontFamily: 'DM Mono, monospace', width: 80, textAlign: 'right' }}>₹{Math.round(coach.total/1000)}K</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: coach.color, fontFamily: "'DM Mono', monospace", width: 120, textAlign: "right" }}>{inr(coach.total)}</div>
                 </div>
               ))}
             </div>
