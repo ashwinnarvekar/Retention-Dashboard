@@ -291,7 +291,7 @@ export default function App() {
                 <Tooltip contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
                 <Bar dataKey="Solved" fill="#34D399" radius={[3, 3, 0, 0]} />
                 <Bar dataKey="In-progress" fill="#F59E0B" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Concern Raised" fill="#F87171" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Concern Raised" name="Concern Raised (Pending)" fill="#F87171" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
