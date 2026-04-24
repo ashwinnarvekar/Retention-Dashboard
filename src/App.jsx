@@ -176,19 +176,19 @@ export default function App() {
   const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "revenue"];
 
   if (loading && raw.length === 0) return (
-    <div style={{ background: "#080B14", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ background: "#080B14", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: 40, height: 40, border: "3px solid #1e2a4a", borderTop: "3px solid #4F8EF7", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 16px" }} />
-        <div style={{ color: "#4F8EF7", fontSize: 13, fontFamily: "'DM Sans', sans-serif" }}>Loading live data...</div>
+        <div style={{ color: "#4F8EF7", fontSize: 13, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Loading live data...</div>
       </div>
     </div>
   );
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#080B14", minHeight: "100vh", color: "#E2E8F0", padding: "20px" }}>
+    <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#080B14", minHeight: "100vh", color: "#E2E8F0", padding: "20px" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         .card { background: #0F1420; border: 1px solid #1A2236; border-radius: 14px; padding: 20px; }
         .tab { cursor: pointer; padding: 7px 16px; border-radius: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; transition: all 0.2s; border: none; background: transparent; color: #475569; }
@@ -196,17 +196,17 @@ export default function App() {
         .tab:hover:not(.active) { color: #94A3B8; background: #111827; }
         .kpi { background: #0F1420; border: 1px solid #1A2236; border-radius: 14px; padding: 20px 24px; position: relative; overflow: hidden; }
         .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
-        select { background: #0F1420; border: 1px solid #1A2236; color: #94A3B8; padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; outline: none; font-family: 'DM Sans', sans-serif; }
+        select { background: #0F1420; border: 1px solid #1A2236; color: #94A3B8; padding: 8px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; }
         .heat-cell { border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 2px; transition: transform 0.15s; cursor: default; }
         .heat-cell:hover { transform: scale(1.12); z-index: 2; position: relative; }
-        .rbtn { background: #111827; border: 1px solid #1A2236; color: #4F8EF7; padding: 7px 14px; border-radius: 8px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; transition: all 0.2s; }
+        .rbtn { background: #111827; border: 1px solid #1A2236; color: #4F8EF7; padding: 7px 14px; border-radius: 8px; font-size: 11px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; transition: all 0.2s; }
         .rbtn:hover { background: #4F8EF7; color: white; }
       `}</style>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.03em", color: "#F1F5F9" }}>Retention Dashboard</div>
+          <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.04em", color: "#F1F5F9" }}>Clinderma Retention Dashboard</div>
           <div style={{ fontSize: 11, color: "#1E3A5F", marginTop: 4, fontFamily: "'DM Mono', monospace", letterSpacing: "0.05em" }}>
             ● LIVE · {raw.length} records{lastUpdated ? ` · synced ${lastUpdated}` : ""}
           </div>
