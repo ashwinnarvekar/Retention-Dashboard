@@ -208,7 +208,7 @@ export default function App() {
   const avgResolutionMins = resolvedRows.length > 0 ? Math.round(resolvedRows.reduce((s, r) => s + r.resolutionMinutes, 0) / resolvedRows.length) : null;
   const slaBreaches = responseData.filter(r => (r.responseMinutes !== null && r.responseMinutes > 1440) || (r.resolutionMinutes !== null && r.resolutionMinutes > 1440));
 
-  const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "revenue", "response"];
+  const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "tat", "revenue"];
 
   if (loading && raw.length === 0) return (
     <div style={{ background: "#080B14", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -579,7 +579,7 @@ export default function App() {
       })()}
 
       {/* RESPONSE TIME */}
-      {tab === "response" && (
+      {tab === "tat" && (
         <div style={{ display: "grid", gap: 14 }}>
           {responseData.length === 0 ? (
             <div className="card" style={{ textAlign: "center", padding: 40 }}>
