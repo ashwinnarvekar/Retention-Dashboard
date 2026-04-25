@@ -129,7 +129,6 @@ export default function App() {
     getDateRangeFilter(catFilter === "All" ? raw : raw.filter(r => r["Category"] === catFilter)),
     [raw, catFilter, dateRange]
   );
-  );
 
   const total = data.length;
   const solved = data.filter(r => r["Update"] === "Solved").length;
