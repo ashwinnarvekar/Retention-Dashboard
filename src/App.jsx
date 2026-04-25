@@ -81,7 +81,9 @@ export default function App() {
   const [tab, setTab] = useState("overview");
   const [catFilter, setCatFilter] = useState("All");
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [dateRange, setDateRange] = useState("all");
+  const [dateRange, setDateRange] = useState('all');
+
+
 
   const fetchData = async () => {
     try {
@@ -187,7 +189,46 @@ export default function App() {
     { label: 'Solve Rate', tw: thisWeek.length ? Math.round((thisWeek.filter(r => r['Update'] === 'Solved').length / thisWeek.length) * 100) : 0, lw: lastWeek.length ? Math.round((lastWeek.filter(r => r['Update'] === 'Solved').length / lastWeek.length) * 100) : 0, color: '#A78BFA', pct: true },
   ];
 
-  const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "revenue"];
+
+  // Response time calculations
+  const responseData = raw
+    .filter(r => r['Responded At IST'] || r['Resolved At IST'])
+    .map(r => {
+      const created = parseDate(r['Created At IST'] || r['Created At']);
+      const responded = parseDate(r['Responded At IST']);
+      const resolved = parseDate(r['Resolved At IST']);
+      const responseMinutes = created && responded ? Math.floor((responded - created) / 60000) : null;
+      const resolutionMinutes = created && resolved ? Math.floor((resolved - created) / 60000) : null;
+      const fmtTime = (mins) => {
+        if (mins === null) return '-';
+        if (mins < 60) return mins + 'm';
+        if (mins < 1440) return Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
+        return Math.floor(mins/1440) + 'd ' + Math.floor((mins%1440)/60) + 'h';
+      };
+      return {
+        ...r,
+        responseMinutes,
+        resolutionMinutes,
+        responseFormatted: fmtTime(responseMinutes),
+        resolutionFormatted: fmtTime(resolutionMinutes),
+      };
+    });
+
+  const avgResponseMins = responseData.filter(r => r.responseMinutes !== null).length > 0
+    ? Math.round(responseData.filter(r => r.responseMinutes !== null).reduce((s, r) => s + r.responseMinutes, 0) / responseData.filter(r => r.responseMinutes !== null).length)
+    : null;
+  const avgResolutionMins = responseData.filter(r => r.resolutionMinutes !== null).length > 0
+    ? Math.round(responseData.filter(r => r.resolutionMinutes !== null).reduce((s, r) => s + r.resolutionMinutes, 0) / responseData.filter(r => r.resolutionMinutes !== null).length)
+    : null;
+  const fmtAvg = (mins) => {
+    if (mins === null) return 'No data yet';
+    if (mins < 60) return mins + 'm';
+    if (mins < 1440) return Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
+    return Math.floor(mins/1440) + 'd ' + Math.floor((mins%1440)/60) + 'h';
+  };
+  const slaBreaches = responseData.filter(r => r.responseMinutes !== null && r.responseMinutes > 1440);
+
+  const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "revenue", "response"];
 
   if (loading && raw.length === 0) return (
     <div style={{ background: "#080B14", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -559,6 +600,10 @@ export default function App() {
             </div>
           </div>
         );
+      })()}
+    </div>
+  );
+}        );
       })()}
     </div>
   );
