@@ -24,6 +24,7 @@ const REVENUE_DATA = [
   { date: '21 Apr', Pooja: 7749.33,  Neha: 11887.40,  Aasavari: 5397.52,  Mohini: 3648.11,  Likitha: 312.32,   Kaushal: 0        },
   { date: '22 Apr', Pooja: 380,      Neha: 7200.04,   Aasavari: 7965.19,  Mohini: 380,      Likitha: 0,        Kaushal: 3165.40  },
   { date: '23 Apr', Pooja: 6972.40,  Neha: 8892.69,   Aasavari: 1968,     Mohini: 805.60,   Likitha: 380,      Kaushal: 11093.59 },
+  { date: '24 Apr', Pooja: 11861.15,  Neha: 10475.26,  Aasavari: 8816.94,  Mohini: 0,        Likitha: 3384.98,  Kaushal: 8837.28  },
 ];
 
 const COACHES = ['Pooja', 'Neha', 'Aasavari', 'Mohini', 'Likitha', 'Kaushal'];
