@@ -260,9 +260,9 @@ export default function App() {
   const tooltipStyle = { background: cardBg, border: `1px solid ${border}`, borderRadius: 8, fontSize: 11, color: text };
 
   if (loading && raw.length === 0) return (
-    <div style={{ background: bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne', sans-serif" }}>
+    <div style={{ background: bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Raleway', sans-serif" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
       `}</style>
@@ -276,20 +276,20 @@ export default function App() {
   const sidebarW = sidebarCollapsed ? 64 : 220;
 
   return (
-    <div style={{ fontFamily: "'Syne', sans-serif", background: bg, minHeight: "100vh", color: text, display: "flex", width: "100%", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Raleway', sans-serif", background: bg, minHeight: "100vh", color: text, display: "flex", width: "100%", overflowX: "hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         @keyframes countUp { from { opacity:0; } to { opacity:1; } }
         .card { background: ${cardBg}; border: 1px solid ${border}; border-radius: 16px; padding: 20px; animation: fadeUp 0.4s ease both; }
-        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: ${subtext}; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; width: 100%; text-align: left; white-space: nowrap; overflow: hidden; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; color: ${subtext}; font-family: 'Raleway', sans-serif; font-size: 13px; font-weight: 600; width: 100%; text-align: left; white-space: nowrap; overflow: hidden; }
         .nav-item:hover { background: ${subtle}; color: ${text}; }
         .nav-item.active { background: #4F8EF7; color: white; }
         .nav-item .icon { font-size: 16px; min-width: 20px; text-align: center; }
-        select { background: ${cardBg}; border: 1px solid ${border}; color: ${text}; padding: 7px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; outline: none; font-family: 'Syne', sans-serif; }
-        .rbtn { background: ${subtle}; border: 1px solid ${border}; color: #4F8EF7; padding: 7px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Syne', sans-serif; font-weight: 600; transition: all 0.2s; }
+        select { background: ${cardBg}; border: 1px solid ${border}; color: ${text}; padding: 7px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; outline: none; font-family: 'Raleway', sans-serif; }
+        .rbtn { background: ${subtle}; border: 1px solid ${border}; color: #4F8EF7; padding: 7px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Raleway', sans-serif; font-weight: 600; transition: all 0.2s; }
         .rbtn:hover { background: #4F8EF7; color: white; }
         .kpi { background: ${cardBg}; border: 1px solid ${border}; border-radius: 16px; padding: 20px 22px; position: relative; overflow: hidden; animation: fadeUp 0.4s ease both; transition: transform 0.2s, box-shadow 0.2s; }
         .kpi:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
@@ -334,7 +334,7 @@ export default function App() {
         {/* Top bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.05em", color: text, fontFamily: "'Syne', sans-serif" }}>
+            <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.05em", color: text, fontFamily: "'Raleway', sans-serif" }}>
               {NAV.find(n => n.id === tab)?.label} {tab !== "revenue" && tab !== "tat" ? "Dashboard" : ""}
             </div>
             <div style={{ fontSize: 11, color: subtext, marginTop: 4, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.04em" }}>
