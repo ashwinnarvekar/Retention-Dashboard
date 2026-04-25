@@ -278,7 +278,7 @@ export default function App() {
       </div>
 
       {/* KPI Cards */}
-      {tab !== "revenue" && tab !== "response" && (
+      {tab !== "revenue" && tab !== "tat" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
           {[
             { label: "Total Conversations", val: total, accent: "#4F8EF7" },
