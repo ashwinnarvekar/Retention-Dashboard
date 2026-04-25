@@ -192,11 +192,11 @@ export default function App() {
   ];
 
   const responseData = raw
-    .filter(r => r['Responded At IST'] || r['Resolved At IST'])
+    .filter(r => r['Responded At IST'] || r['Resolved At IST'] || r['Resolved At'])
     .map(r => {
       const created = parseDate(r['Created At IST'] || r['Created At']);
       const responded = parseDate(r['Responded At IST']);
-      const resolved = parseDate(r['Resolved At IST']);
+      const resolved = parseDate(r['Resolved At IST'] || r['Resolved At']);
       const responseMinutes = created && responded ? Math.floor((responded - created) / 60000) : null;
       const resolutionMinutes = created && resolved ? Math.floor((resolved - created) / 60000) : null;
       return { ...r, responseMinutes, resolutionMinutes, responseFormatted: fmtMins(responseMinutes), resolutionFormatted: fmtMins(resolutionMinutes) };
@@ -206,7 +206,7 @@ export default function App() {
   const resolvedRows = responseData.filter(r => r.resolutionMinutes !== null);
   const avgResponseMins = respondedRows.length > 0 ? Math.round(respondedRows.reduce((s, r) => s + r.responseMinutes, 0) / respondedRows.length) : null;
   const avgResolutionMins = resolvedRows.length > 0 ? Math.round(resolvedRows.reduce((s, r) => s + r.resolutionMinutes, 0) / resolvedRows.length) : null;
-  const slaBreaches = respondedRows.filter(r => r.responseMinutes > 1440);
+  const slaBreaches = responseData.filter(r => (r.responseMinutes !== null && r.responseMinutes > 1440) || (r.resolutionMinutes !== null && r.resolutionMinutes > 1440));
 
   const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "revenue", "response"];
 
