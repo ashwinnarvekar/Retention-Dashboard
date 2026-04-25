@@ -276,7 +276,7 @@ export default function App() {
   const sidebarW = sidebarCollapsed ? 64 : 220;
 
   return (
-    <div style={{ fontFamily: "'Syne', sans-serif", background: bg, minHeight: "100vh", color: text, display: "flex" }}>
+    <div style={{ fontFamily: "'Syne', sans-serif", background: bg, minHeight: "100vh", color: text, display: "flex", width: "100%", overflowX: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -304,9 +304,9 @@ export default function App() {
       `}</style>
 
       {/* SIDEBAR */}
-      <div className="sidebar" style={{ width: sidebarW, minHeight: "100vh", background: cardBg, borderRight: `1px solid ${border}`, padding: "20px 12px", display: "flex", flexDirection: "column", gap: 4, position: "sticky", top: 0, transition: "width 0.3s", overflow: "hidden", flexShrink: 0 }}>
+      <div className="sidebar" style={{ width: sidebarW, minHeight: "100vh", background: cardBg, borderRight: `1px solid ${border}`, padding: "20px 12px", display: "flex", flexDirection: "column", gap: 4, position: "sticky", top: 0, height: "100vh", transition: "width 0.3s", overflow: "hidden", flexShrink: 0, overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, paddingLeft: 4 }}>
-          {!sidebarCollapsed && <div style={{ fontSize: 13, fontWeight: 800, color: text, letterSpacing: "-0.02em", whiteSpace: "nowrap" }}>CLINDERMA</div>}
+          {!sidebarCollapsed && <div style={{ fontSize: 14, fontWeight: 800, color: text, letterSpacing: "0.12em", whiteSpace: "nowrap", textTransform: "uppercase" }}>CLINDERMA</div>}
           <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} style={{ background: "none", border: "none", cursor: "pointer", color: subtext, fontSize: 18, padding: 4, marginLeft: sidebarCollapsed ? "auto" : 0 }}>
             {sidebarCollapsed ? "›" : "‹"}
           </button>
@@ -329,12 +329,12 @@ export default function App() {
       </div>
 
       {/* MAIN */}
-      <div className="main-content" style={{ flex: 1, padding: "24px", overflowX: "hidden", minWidth: 0 }}>
+      <div className="main-content" style={{ flex: 1, padding: "20px 28px", overflowX: "hidden", minWidth: 0 }}>
 
         {/* Top bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.04em", color: text }}>
+            <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.05em", color: text, fontFamily: "'Syne', sans-serif" }}>
               {NAV.find(n => n.id === tab)?.label} {tab !== "revenue" && tab !== "tat" ? "Dashboard" : ""}
             </div>
             <div style={{ fontSize: 11, color: subtext, marginTop: 4, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.04em" }}>
