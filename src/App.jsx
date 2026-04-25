@@ -200,7 +200,8 @@ export default function App() {
       const responseMinutes = created && responded ? Math.floor((responded - created) / 60000) : null;
       const resolutionMinutes = created && resolved ? Math.floor((resolved - created) / 60000) : null;
       return { ...r, responseMinutes, resolutionMinutes, responseFormatted: fmtMins(responseMinutes), resolutionFormatted: fmtMins(resolutionMinutes) };
-    });
+    })
+    .sort((a, b) => (b.parsedDate || 0) - (a.parsedDate || 0));
 
   const respondedRows = responseData.filter(r => r.responseMinutes !== null);
   const resolvedRows = responseData.filter(r => r.resolutionMinutes !== null);
