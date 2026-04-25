@@ -410,9 +410,9 @@ export default function App() {
               </div>
               <div className="card">
                 <div style={{ fontSize: 11, fontWeight: 700, color: subtext, marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category Split</div>
-                <ResponsiveContainer width="100%" height={190}>
+                <ResponsiveContainer width="100%" height={240}>
                   <PieChart>
-                    <Pie data={catData} cx="50%" cy="50%" innerRadius={50} outerRadius={76} dataKey="value" paddingAngle={3}>
+                    <Pie data={catData} cx="50%" cy="45%" innerRadius={55} outerRadius={85} dataKey="value" paddingAngle={3}>
                       {catData.map(e => <Cell key={e.name} fill={COLORS[e.name] || "#64748b"} />)}
                     </Pie>
                     <Tooltip contentStyle={tooltipStyle} />
