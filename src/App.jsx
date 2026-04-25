@@ -603,6 +603,30 @@ export default function App() {
                   </div>
                 ))}
               </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                <div className="card">
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Avg Response Time by Category</div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={Object.entries(responseData.filter(r => r.responseMinutes !== null).reduce((acc, r) => { const cat = r["Category"].replace(" Concern",""); if (!acc[cat]) acc[cat] = {total:0,count:0}; acc[cat].total += r.responseMinutes; acc[cat].count++; return acc; }, {})).map(([cat,v]) => ({ cat, avg: Math.round(v.total/v.count) }))} barSize={32}>
+                      <XAxis dataKey="cat" tick={{ fontSize: 10, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: "#94A3B8" }} axisLine={false} tickLine={false} tickFormatter={v => v < 60 ? v+"m" : Math.floor(v/60)+"h"} />
+                      <Tooltip formatter={v => [v < 60 ? v+"m" : Math.floor(v/60)+"h "+(v%60)+"m", "Avg Response"]} contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
+                      <Bar dataKey="avg" fill="#4F8EF7" radius={[4,4,0,0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="card">
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Avg Resolution Time by Category</div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={Object.entries(responseData.filter(r => r.resolutionMinutes !== null).reduce((acc, r) => { const cat = r["Category"].replace(" Concern",""); if (!acc[cat]) acc[cat] = {total:0,count:0}; acc[cat].total += r.resolutionMinutes; acc[cat].count++; return acc; }, {})).map(([cat,v]) => ({ cat, avg: Math.round(v.total/v.count) }))} barSize={32}>
+                      <XAxis dataKey="cat" tick={{ fontSize: 10, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: "#94A3B8" }} axisLine={false} tickLine={false} tickFormatter={v => v < 60 ? v+"m" : Math.floor(v/60)+"h"} />
+                      <Tooltip formatter={v => [v < 60 ? v+"m" : Math.floor(v/60)+"h "+(v%60)+"m", "Avg Resolution"]} contentStyle={{ background: "#0F1420", border: "1px solid #1A2236", borderRadius: 8, fontSize: 11 }} />
+                      <Bar dataKey="avg" fill="#34D399" radius={[4,4,0,0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
               <div className="card">
                 <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Response and Resolution Timeline</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.2fr 1.4fr 1fr 1fr", gap: 0 }}>
