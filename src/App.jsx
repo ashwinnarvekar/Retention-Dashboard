@@ -24,24 +24,17 @@ const REVENUE_DATA = [
   { date: '21 Apr', Pooja: 7749.33,  Neha: 11887.40,  Aasavari: 5397.52,  Mohini: 3648.11,  Likitha: 312.32,   Kaushal: 0        },
   { date: '22 Apr', Pooja: 380,      Neha: 7200.04,   Aasavari: 7965.19,  Mohini: 380,      Likitha: 0,        Kaushal: 3165.40  },
   { date: '23 Apr', Pooja: 6972.40,  Neha: 8892.69,   Aasavari: 1968,     Mohini: 805.60,   Likitha: 380,      Kaushal: 11093.59 },
-  { date: '24 Apr', Pooja: 11861.15,  Neha: 10475.26,  Aasavari: 8816.94,  Mohini: 0,        Likitha: 3384.98,  Kaushal: 8837.28  },
+  { date: '24 Apr', Pooja: 11861.15, Neha: 10475.26,  Aasavari: 8816.94,  Mohini: 0,        Likitha: 3384.98,  Kaushal: 8837.28  },
 ];
 
 const COACHES = ['Pooja', 'Neha', 'Aasavari', 'Mohini', 'Likitha', 'Kaushal'];
 const COACH_COLORS = { Pooja: '#4F8EF7', Neha: '#34D399', Aasavari: '#F59E0B', Mohini: '#A78BFA', Likitha: '#F87171', Kaushal: '#38BDF8' };
 const DAILY_TEAM_TARGET = 44200;
 const MONTHLY_TARGET = 1193400;
-
 const SHEET_ID = "1f27PdvxhDcJWYZjhqBD6UlFe9e5M4GuSiuZlvKXZgLg";
 const SHEET_NAME = "Sheet1";
 const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
-
-const COLORS = {
-  "Delivery Concern": "#4F8EF7",
-  "Usage Concern": "#F59E0B",
-  "Skin Concern": "#A78BFA",
-  "Other Concern": "#34D399",
-};
+const COLORS = { "Delivery Concern": "#4F8EF7", "Usage Concern": "#F59E0B", "Skin Concern": "#A78BFA", "Other Concern": "#34D399" };
 
 function parseSheetData(raw) {
   const json = JSON.parse(raw.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
@@ -72,6 +65,13 @@ function fmtDay(dateStr) {
   return `${d.getDate()} Apr`;
 }
 
+function fmtMins(mins) {
+  if (mins === null) return '-';
+  if (mins < 60) return mins + 'm';
+  if (mins < 1440) return Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
+  return Math.floor(mins/1440) + 'd ' + Math.floor((mins%1440)/60) + 'h';
+}
+
 const inr = (v) => '₹' + Math.round(v).toLocaleString('en-IN');
 
 export default function App() {
@@ -81,9 +81,7 @@ export default function App() {
   const [tab, setTab] = useState("overview");
   const [catFilter, setCatFilter] = useState("All");
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [dateRange, setDateRange] = useState('all');
-
-
+  const [dateRange, setDateRange] = useState("all");
 
   const fetchData = async () => {
     try {
@@ -119,13 +117,18 @@ export default function App() {
     else if (dateRange === '14d') cutoff.setDate(now.getDate() - 14);
     else if (dateRange === '30d') cutoff.setDate(now.getDate() - 30);
     else if (dateRange === 'thisweek') { cutoff.setDate(now.getDate() - now.getDay()); cutoff.setHours(0,0,0,0); }
-    else if (dateRange === 'lastweek') { const s = new Date(now); s.setDate(now.getDate() - now.getDay() - 7); s.setHours(0,0,0,0); const e = new Date(s); e.setDate(s.getDate() + 7); return records.filter(r => { const d = r.parsedDate; return d && d >= s && d < e; }); }
+    else if (dateRange === 'lastweek') {
+      const s = new Date(now); s.setDate(now.getDate() - now.getDay() - 7); s.setHours(0,0,0,0);
+      const e = new Date(s); e.setDate(s.getDate() + 7);
+      return records.filter(r => r.parsedDate && r.parsedDate >= s && r.parsedDate < e);
+    }
     return records.filter(r => r.parsedDate && r.parsedDate >= cutoff);
   };
 
   const data = useMemo(() =>
     getDateRangeFilter(catFilter === "All" ? raw : raw.filter(r => r["Category"] === catFilter)),
     [raw, catFilter, dateRange]
+  );
   );
 
   const total = data.length;
@@ -189,8 +192,6 @@ export default function App() {
     { label: 'Solve Rate', tw: thisWeek.length ? Math.round((thisWeek.filter(r => r['Update'] === 'Solved').length / thisWeek.length) * 100) : 0, lw: lastWeek.length ? Math.round((lastWeek.filter(r => r['Update'] === 'Solved').length / lastWeek.length) * 100) : 0, color: '#A78BFA', pct: true },
   ];
 
-
-  // Response time calculations
   const responseData = raw
     .filter(r => r['Responded At IST'] || r['Resolved At IST'])
     .map(r => {
@@ -199,43 +200,23 @@ export default function App() {
       const resolved = parseDate(r['Resolved At IST']);
       const responseMinutes = created && responded ? Math.floor((responded - created) / 60000) : null;
       const resolutionMinutes = created && resolved ? Math.floor((resolved - created) / 60000) : null;
-      const fmtTime = (mins) => {
-        if (mins === null) return '-';
-        if (mins < 60) return mins + 'm';
-        if (mins < 1440) return Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
-        return Math.floor(mins/1440) + 'd ' + Math.floor((mins%1440)/60) + 'h';
-      };
-      return {
-        ...r,
-        responseMinutes,
-        resolutionMinutes,
-        responseFormatted: fmtTime(responseMinutes),
-        resolutionFormatted: fmtTime(resolutionMinutes),
-      };
+      return { ...r, responseMinutes, resolutionMinutes, responseFormatted: fmtMins(responseMinutes), resolutionFormatted: fmtMins(resolutionMinutes) };
     });
 
-  const avgResponseMins = responseData.filter(r => r.responseMinutes !== null).length > 0
-    ? Math.round(responseData.filter(r => r.responseMinutes !== null).reduce((s, r) => s + r.responseMinutes, 0) / responseData.filter(r => r.responseMinutes !== null).length)
-    : null;
-  const avgResolutionMins = responseData.filter(r => r.resolutionMinutes !== null).length > 0
-    ? Math.round(responseData.filter(r => r.resolutionMinutes !== null).reduce((s, r) => s + r.resolutionMinutes, 0) / responseData.filter(r => r.resolutionMinutes !== null).length)
-    : null;
-  const fmtAvg = (mins) => {
-    if (mins === null) return 'No data yet';
-    if (mins < 60) return mins + 'm';
-    if (mins < 1440) return Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
-    return Math.floor(mins/1440) + 'd ' + Math.floor((mins%1440)/60) + 'h';
-  };
-  const slaBreaches = responseData.filter(r => r.responseMinutes !== null && r.responseMinutes > 1440);
+  const respondedRows = responseData.filter(r => r.responseMinutes !== null);
+  const resolvedRows = responseData.filter(r => r.resolutionMinutes !== null);
+  const avgResponseMins = respondedRows.length > 0 ? Math.round(respondedRows.reduce((s, r) => s + r.responseMinutes, 0) / respondedRows.length) : null;
+  const avgResolutionMins = resolvedRows.length > 0 ? Math.round(resolvedRows.reduce((s, r) => s + r.resolutionMinutes, 0) / resolvedRows.length) : null;
+  const slaBreaches = respondedRows.filter(r => r.responseMinutes > 1440);
 
   const tabs = ["overview", "trends", "heatmap", "repeats", "aging", "weekly", "revenue", "response"];
 
   if (loading && raw.length === 0) return (
     <div style={{ background: "#080B14", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');`}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');`}</style>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: 40, height: 40, border: "3px solid #1e2a4a", borderTop: "3px solid #4F8EF7", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 16px" }} />
-        <div style={{ color: "#4F8EF7", fontSize: 13, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Loading live data...</div>
+        <div style={{ color: "#4F8EF7", fontSize: 13 }}>Loading live data...</div>
       </div>
     </div>
   );
@@ -267,17 +248,17 @@ export default function App() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {tab !== 'revenue' && (
+          {tab !== "revenue" && (
             <select value={dateRange} onChange={e => setDateRange(e.target.value)}>
-              <option value='all'>All Time</option>
-              <option value='7d'>Last 7 Days</option>
-              <option value='14d'>Last 14 Days</option>
-              <option value='30d'>Last 30 Days</option>
-              <option value='thisweek'>This Week</option>
-              <option value='lastweek'>Last Week</option>
+              <option value="all">All Time</option>
+              <option value="7d">Last 7 Days</option>
+              <option value="14d">Last 14 Days</option>
+              <option value="30d">Last 30 Days</option>
+              <option value="thisweek">This Week</option>
+              <option value="lastweek">Last Week</option>
             </select>
           )}
-          {tab !== 'revenue' && (
+          {tab !== "revenue" && (
             <select value={catFilter} onChange={e => setCatFilter(e.target.value)}>
               <option>All</option>
               <option>Delivery Concern</option>
@@ -293,12 +274,12 @@ export default function App() {
       {error && <div style={{ background: "#1a0a0a", border: "1px solid #7f1d1d", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#fca5a5", marginBottom: 16 }}>{error}</div>}
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "#0F1420", padding: 5, borderRadius: 10, width: "fit-content", border: "1px solid #1A2236" }}>
+      <div style={{ display: "flex", gap: 4, marginBottom: 20, background: "#0F1420", padding: 5, borderRadius: 10, width: "fit-content", border: "1px solid #1A2236", flexWrap: "wrap" }}>
         {tabs.map(t => <button key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>{t}</button>)}
       </div>
 
-      {/* KPI Cards — hidden on revenue tab */}
-      {tab !== "revenue" && (
+      {/* KPI Cards */}
+      {tab !== "revenue" && tab !== "response" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 20 }}>
           {[
             { label: "Total Conversations", val: total, accent: "#4F8EF7" },
@@ -348,7 +329,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
           <div className="card" style={{ gridColumn: "1 / -1" }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress vs Concern Raised by Day</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 14, textTransform: "uppercase", letterSpacing: "0.1em" }}>Solved vs In-Progress vs Concern Raised (Pending) by Day</div>
             <ResponsiveContainer width="100%" height={140}>
               <BarChart data={dailyData} barSize={10}>
                 <XAxis dataKey="label" tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
@@ -471,7 +452,7 @@ export default function App() {
         <div className="card">
           <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Unsolved Aging Table</div>
           <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 20 }}>Oldest unresolved concerns at the top</div>
-          {unsolvedAging.length === 0 && <div style={{ color: "#34D399", fontSize: 14, fontWeight: 600 }}>✓ All concerns resolved!</div>}
+          {unsolvedAging.length === 0 && <div style={{ color: "#34D399", fontSize: 14, fontWeight: 600 }}>All concerns resolved!</div>}
           <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.4fr 1.2fr 1fr 0.8fr", gap: 0 }}>
             {["Phone", "Category", "Date Raised", "Status", "Age"].map(h => (
               <div key={h} style={{ fontSize: 11, fontWeight: 800, color: "#CBD5E1", textTransform: "uppercase", letterSpacing: "0.08em", padding: "10px 12px", borderBottom: "2px solid #1A2236" }}>{h}</div>
@@ -527,11 +508,13 @@ export default function App() {
         const revenueWithTotal = REVENUE_DATA.map(d => ({ ...d, total: COACHES.reduce((s, c) => s + (d[c] || 0), 0) }));
         const totalAchieved = revenueWithTotal.reduce((s, d) => s + d.total, 0);
         const monthlyPct = Math.round((totalAchieved / MONTHLY_TARGET) * 100);
+        const today2 = new Date();
+        const lastDay = new Date(today2.getFullYear(), today2.getMonth() + 1, 0);
+        const daysLeft = lastDay.getDate() - today2.getDate();
+        const neededPerDay = daysLeft > 0 ? (MONTHLY_TARGET - totalAchieved) / daysLeft : 0;
         const coachTotals = COACHES.map(coach => ({ name: coach, total: REVENUE_DATA.reduce((s, d) => s + (d[coach] || 0), 0), color: COACH_COLORS[coach] })).sort((a, b) => b.total - a.total);
-
         return (
           <div style={{ display: "grid", gap: 14 }}>
-            {/* Monthly KPIs */}
             <div className="card">
               <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Monthly Progress — April 2026</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 12, marginBottom: 20 }}>
@@ -539,13 +522,13 @@ export default function App() {
                   { label: "Monthly Target", val: inr(MONTHLY_TARGET), color: "#4F8EF7" },
                   { label: "Achieved So Far", val: inr(totalAchieved), color: "#34D399" },
                   { label: "Delta", val: inr(MONTHLY_TARGET - totalAchieved), color: "#F87171" },
-                  { label: '% Achieved', val: monthlyPct + '%', color: monthlyPct >= 80 ? '#34D399' : monthlyPct >= 60 ? '#F59E0B' : '#F87171' },
-                  { label: 'Days Remaining', val: (() => { const today = new Date(); const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0); return lastDay.getDate() - today.getDate(); })(), color: '#4F8EF7' },
-                  { label: 'Needed Per Day', val: inr((() => { const today = new Date(); const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0); const daysLeft = lastDay.getDate() - today.getDate(); return daysLeft > 0 ? (MONTHLY_TARGET - totalAchieved) / daysLeft : 0; })()), color: '#F59E0B' },
+                  { label: "% Achieved", val: monthlyPct + "%", color: monthlyPct >= 80 ? "#34D399" : monthlyPct >= 60 ? "#F59E0B" : "#F87171" },
+                  { label: "Days Remaining", val: daysLeft, color: "#4F8EF7" },
+                  { label: "Needed Per Day", val: inr(neededPerDay), color: "#F59E0B" },
                 ].map(k => (
                   <div key={k.label} style={{ background: "#111827", border: "1px solid #1A2236", borderRadius: 10, padding: "14px 18px" }}>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: k.color, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#94A3B8", marginTop: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>{k.label}</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: k.color, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: "#94A3B8", marginTop: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>{k.label}</div>
                   </div>
                 ))}
               </div>
@@ -556,8 +539,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-
-            {/* Daily team chart */}
             <div className="card">
               <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Team Revenue — Achieved vs Target ({inr(DAILY_TEAM_TARGET)})</div>
               <ResponsiveContainer width="100%" height={220}>
@@ -569,8 +550,6 @@ export default function App() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-
-            {/* Per coach stacked */}
             <div className="card">
               <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Daily Revenue by Skin Coach</div>
               <ResponsiveContainer width="100%" height={220}>
@@ -583,8 +562,6 @@ export default function App() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-
-            {/* Leaderboard */}
             <div className="card">
               <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Coach Leaderboard — April Total</div>
               {coachTotals.map((coach, i) => (
@@ -601,10 +578,55 @@ export default function App() {
           </div>
         );
       })()}
-    </div>
-  );
-}        );
-      })()}
+
+      {/* RESPONSE TIME */}
+      {tab === "response" && (
+        <div style={{ display: "grid", gap: 14 }}>
+          {responseData.length === 0 ? (
+            <div className="card" style={{ textAlign: "center", padding: 40 }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>⏱️</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#CBD5E1", marginBottom: 8 }}>No Response Time Data Yet</div>
+              <div style={{ fontSize: 12, color: "#475569", maxWidth: 400, margin: "0 auto" }}>
+                Once you set up the Apps Script in your Google Sheet, response and resolution times will appear here automatically for all new concerns.
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 14 }}>
+                {[
+                  { label: "Avg Response Time (In-progress)", val: fmtMins(avgResponseMins), color: "#4F8EF7" },
+                  { label: "Avg Resolution Time (Solved)", val: fmtMins(avgResolutionMins), color: "#34D399" },
+                  { label: "SLA Breaches (over 24h)", val: slaBreaches.length, color: slaBreaches.length > 0 ? "#F87171" : "#34D399" },
+                ].map(k => (
+                  <div key={k.label} className="kpi" style={{ "--accent": k.color }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: k.color, fontFamily: "'DM Mono', monospace", lineHeight: 1 }}>{k.val}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#CBD5E1", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>{k.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="card">
+                <div style={{ fontSize: 12, fontWeight: 800, color: "#CBD5E1", marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Response and Resolution Timeline</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1.2fr 1.4fr 1fr 1fr", gap: 0 }}>
+                  {["Phone", "Category", "Concern Raised At", "Response Time (In-progress)", "Resolved Time (Solved)"].map(h => (
+                    <div key={h} style={{ fontSize: 10, fontWeight: 800, color: "#CBD5E1", textTransform: "uppercase", letterSpacing: "0.06em", padding: "10px 12px", borderBottom: "2px solid #1A2236" }}>{h}</div>
+                  ))}
+                  {responseData.slice(0, 50).map((r, i) => {
+                    const rtColor = r.responseMinutes === null ? "#475569" : r.responseMinutes > 1440 ? "#F87171" : r.responseMinutes > 480 ? "#F59E0B" : "#34D399";
+                    const rstColor = r.resolutionMinutes === null ? "#475569" : r.resolutionMinutes > 2880 ? "#F87171" : r.resolutionMinutes > 1440 ? "#F59E0B" : "#34D399";
+                    return [
+                      <div key={"p"+i} style={{ padding: "11px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 600, color: "#F1F5F9" }}>{String(r["Phone"] || "").replace(/\.0$/, "")}</div>,
+                      <div key={"c"+i} style={{ padding: "11px 12px", borderBottom: "1px solid #111827", fontSize: 12, fontWeight: 600, color: "#CBD5E1" }}>{r["Category"]}</div>,
+                      <div key={"d"+i} style={{ padding: "11px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 11, color: "#94A3B8" }}>{String(r["Created At IST"] || "").slice(0, 16)}</div>,
+                      <div key={"rt"+i} style={{ padding: "11px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: rtColor }}>{r.responseFormatted}</div>,
+                      <div key={"rs"+i} style={{ padding: "11px 12px", borderBottom: "1px solid #111827", fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: rstColor }}>{r.resolutionFormatted}</div>,
+                    ];
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
